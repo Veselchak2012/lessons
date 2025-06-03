@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Комп'ютери та їх різновиди</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+        }
+
+        .presentation-container {
+            width: 100%;
+            max-width: 1400px;
+            height: 100vh;
+            margin: 0 auto;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .title {
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .slide-counter {
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            position: relative;
+        }
+
+        .slide {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            opacity: 0;
+            transform: translateX(100px);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .slide h1 {
+            color: white;
+            font-size: 48px;
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            animation: fadeInUp 1s ease;
+        }
+
+        .slide h2 {
+            color: white;
+            font-size: 36px;
+            text-align: center;
+            margin-bottom: 25px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .slide h3 {
+            color: #FFD700;
+            font-size: 28px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .slide p {
+            color: white;
+            font-size: 20px;
+            line-height: 1.6;
+            text-align: center;
+            max-width: 800px;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .content-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            animation: slideInUp 0.8s ease;
+        }
+
+        .computer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .computer-item {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .computer-item:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .computer-item h4 {
+            color: #FFD700;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .computer-item p {
+            color: white;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .component-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            width: 100%;
+            max-width: 1200px;
+            overflow-y: auto;
+            max-height: 60vh;
+        }
+
+        .component-item {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 15px;
+            border-left: 4px solid #FFD700;
+            transition: all 0.3s ease;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .component-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .component-item h4 {
+            color: #FFD700;
+            font-size: 15px;
+            margin-bottom: 6px;
+        }
+
+        .component-item p {
+            color: white;
+            font-size: 13px;
+            line-height: 1.3;
+            text-align: left;
+        }
+
+        .navigation {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            background: #FFD700;
+            transition: width 0.6s ease;
+            border-radius: 2px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            width: 100%;
+            max-width: 1200px;
+            overflow-y: auto;
+            max-height: 65vh;
+        }
+
+        .summary-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .summary-card h4 {
+            color: #FFD700;
+            font-size: 18px;
+            margin-bottom: 12px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .summary-card ul {
+            color: white;
+            list-style: none;
+            padding: 0;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .summary-card li {
+            padding: 4px 0;
+            position: relative;
+            padding-left: 20px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .summary-card li:before {
+            content: "✓";
+            color: #FFD700;
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        /* Fullscreen styles */
+        .fullscreen {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            max-width: none !important;
+            z-index: 9999 !important;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .presentation-container {
+                max-width: 100%;
+            }
+
+            .header {
+                padding: 10px 15px;
+            }
+
+            .title {
+                font-size: 18px;
+            }
+
+            .slide {
+                padding: 20px 15px;
+            }
+
+            .slide h1 {
+                font-size: 32px;
+            }
+
+            .slide h2 {
+                font-size: 24px;
+            }
+
+            .slide h3 {
+                font-size: 20px;
+            }
+
+            .slide p {
+                font-size: 16px;
+            }
+
+            .computer-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .component-list {
+                grid-template-columns: 1fr;
+                max-height: 50vh;
+                gap: 10px;
+            }
+
+            .component-item {
+                padding: 12px;
+                min-height: 70px;
+            }
+
+            .component-item h4 {
+                font-size: 14px;
+                margin-bottom: 5px;
+            }
+
+            .component-item p {
+                font-size: 12px;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+                max-height: 55vh;
+                gap: 12px;
+            }
+
+            .summary-card {
+                padding: 15px;
+                min-height: 120px;
+            }
+
+            .summary-card h4 {
+                font-size: 16px;
+                margin-bottom: 10px;
+            }
+
+            .summary-card li {
+                font-size: 13px;
+                padding: 3px 0;
+            }
+
+            .navigation {
+                bottom: 15px;
+            }
+
+            .nav-btn {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+
+            .controls {
+                gap: 10px;
+            }
+
+            .btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container" id="presentationContainer">
+        <div class="header">
+            <div class="title">Комп'ютери та їх різновиди</div>
+            <div class="controls">
+                <div class="slide-counter">
+                    <span id="currentSlide">1</span> / <span id="totalSlides">6</span>
+                </div>
+                <button class="btn" onclick="toggleFullscreen()" id="fullscreenBtn">
+                    📺 Повний екран
+                </button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- Slide 1: Title -->
+            <div class="slide active">
+                <h1>Комп'ютери та їх різновиди</h1>
+                <div class="content-card">
+                    <p>Програмно-керовані пристрої для обробки інформації</p>
+                    <p>Урок інформатики для 5 класу</p>
+                </div>
+            </div>
+
+            <!-- Slide 2: Computer Definition -->
+            <div class="slide">
+                <h2>Що таке комп'ютер?</h2>
+                <div class="content-card">
+                    <h3>Комп'ютер</h3>
+                    <p>(від англ. computer — «обчислювач»)</p>
+                    <p><strong>Програмно-керований пристрій для обробки інформації</strong></p>
+                    <br>
+                    <p>У сучасному світі для виконання інформаційних процесів усе більше людей використовують комп'ютери</p>
+                </div>
+            </div>
+
+            <!-- Slide 3: Computer Types -->
+            <div class="slide">
+                <h2>Класифікація комп'ютерів</h2>
+                <div class="computer-grid">
+                    <div class="computer-item">
+                        <h4>Суперкомп'ютери</h4>
+                        <p>Потужні обчислювальні системи для складних завдань</p>
+                    </div>
+                    <div class="computer-item">
+                        <h4>Персональні комп'ютери</h4>
+                        <p>Найпоширеніші сьогодні комп'ютери для особистого використання</p>
+                    </div>
+                    <div class="computer-item">
+                        <h4>Мікрокомп'ютери</h4>
+                        <p>Малі комп'ютери вбудовані в різні пристрої</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4: Personal Computers -->
+            <div class="slide">
+                <h2>Персональні комп'ютери (ПК)</h2>
+                <div class="computer-grid">
+                    <div class="computer-item">
+                        <h4>Стаціонарні</h4>
+                        <p>• Настільні<br>• Неттопи<br>• Моноблоки</p>
+                    </div>
+                    <div class="computer-item">
+                        <h4>Портативні</h4>
+                        <p>• Ноутбуки<br>• Нетбуки<br>• Планшетні ноутбуки</p>
+                    </div>
+                    <div class="computer-item">
+                        <h4>Кишенькові</h4>
+                        <p>• КПК<br>• Смартфони<br>• Планшети</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 5: System Unit Components -->
+            <div class="slide">
+                <h2>Системний блок комп'ютера</h2>
+                <p style="margin-bottom: 30px;">Корпус, в якому містяться основні функціональні компоненти</p>
+                <div class="component-list">
+                    <div class="component-item">
+                        <h4>Процесор (CPU)</h4>
+                        <p>«Мозок» комп'ютера, виконує програмний код та керує системою</p>
+                    </div>
+                    <div class="component-item">
+                        <h4>Оперативна пам'ять (RAM)</h4>
+                        <p>Швидка пам'ять для програм і даних під час роботи</p>
+                    </div>
+                    <div class="component-item">
+                        <h4>Материнська плата</h4>
+                        <p>Головна плата, що з'єднує всі компоненти комп'ютера</p>
+                    </div>
+                    <div class="component-item">
+                        <h4>Накопичувач (HDD/SSD)</h4>
+                        <p>Довгострокове зберігання великих обсягів інформації</p>
+                    </div>
+                    <div class="component-item">
+                        <h4>Відеоадаптер</h4>
+                        <p>Обробка графічних даних та вивід зображення на екран</p>
+                    </div>
+                    <div class="component-item">
+                        <h4>Блок живлення</h4>
+                        <p>Перетворює електричний струм для живлення компонентів</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 6: Summary -->
+            <div class="slide">
+                <h2>Підсумок</h2>
+                <div class="summary-grid">
+                    <div class="summary-card">
+                        <h4>Основні поняття</h4>
+                        <ul>
+                            <li>Комп'ютер — програмно-керований пристрій</li>
+                            <li>Обробка інформації — головна функція</li>
+                            <li>Різноманітність типів і форм</li>
+                        </ul>
+                    </div>
+                    <div class="summary-card">
+                        <h4>Типи комп'ютерів</h4>
+                        <ul>
+                            <li>Суперкомп'ютери</li>
+                            <li>Персональні комп'ютери</li>
+                            <li>Мікрокомп'ютери</li>
+                        </ul>
+                    </div>
+                    <div class="summary-card">
+                        <h4>ПК за мобільністю</h4>
+                        <ul>
+                            <li>Стаціонарні (настільні)</li>
+                            <li>Портативні (ноутбуки)</li>
+                            <li>Кишенькові (смартфони)</li>
+                        </ul>
+                    </div>
+                    <div class="summary-card">
+                        <h4>Компоненти системного блоку</h4>
+                        <ul>
+                            <li>Процесор і оперативна пам'ять</li>
+                            <li>Материнська плата</li>
+                            <li>Накопичувачі та адаптери</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button class="nav-btn" onclick="previousSlide()" id="prevBtn" disabled>← Попередній</button>
+            <button class="nav-btn" onclick="nextSlide()" id="nextBtn">Наступний →</button>
+        </div>
+
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        let isFullscreen = false;
+
+        // Initialize
+        document.getElementById('totalSlides').textContent = totalSlides;
+        updateProgressBar();
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+            });
+            
+            document.getElementById('currentSlide').textContent = index + 1;
+            document.getElementById('prevBtn').disabled = index === 0;
+            document.getElementById('nextBtn').disabled = index === totalSlides - 1;
+            
+            currentSlideIndex = index;
+            updateProgressBar();
+        }
+
+        function nextSlide() {
+            if (currentSlideIndex < totalSlides - 1) {
+                showSlide(currentSlideIndex + 1);
+            }
+        }
+
+        function previousSlide() {
+            if (currentSlideIndex > 0) {
+                showSlide(currentSlideIndex - 1);
+            }
+        }
+
+        function updateProgressBar() {
+            const progress = ((currentSlideIndex + 1) / totalSlides) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function toggleFullscreen() {
+            const container = document.getElementById('presentationContainer');
+            const btn = document.getElementById('fullscreenBtn');
+            
+            if (!isFullscreen) {
+                // Check if we're in an iframe
+                if (window.self !== window.top) {
+                    // We're in an iframe, request fullscreen from parent
+                    const message = {
+                        type: 'requestFullscreen',
+                        element: 'presentation'
+                    };
+                    window.parent.postMessage(message, '*');
+                } else {
+                    // Not in iframe, use standard fullscreen API
+                    if (container.requestFullscreen) {
+                        container.requestFullscreen();
+                    } else if (container.webkitRequestFullscreen) {
+                        container.webkitRequestFullscreen();
+                    } else if (container.msRequestFullscreen) {
+                        container.msRequestFullscreen();
+                    }
+                }
+                
+                container.classList.add('fullscreen');
+                btn.innerHTML = '📱 Вийти з повного екрану';
+                isFullscreen = true;
+            } else {
+                // Exit fullscreen
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+                
+                container.classList.remove('fullscreen');
+                btn.innerHTML = '📺 Повний екран';
+                isFullscreen = false;
+            }
+        }
+
+        // Handle fullscreen change events
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+        document.addEventListener('msfullscreenchange', handleFullscreenChange);
+
+        function handleFullscreenChange() {
+            const container = document.getElementById('presentationContainer');
+            const btn = document.getElementById('fullscreenBtn');
+            
+            if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+                container.classList.remove('fullscreen');
+                btn.innerHTML = '📺 Повний екран';
+                isFullscreen = false;
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowRight':
+                case ' ':
+                    e.preventDefault();
+                    nextSlide();
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    previousSlide();
+                    break;
+                case 'Escape':
+                    if (isFullscreen) {
+                        toggleFullscreen();
+                    }
+                    break;
+                case 'F11':
+                    e.preventDefault();
+                    toggleFullscreen();
+                    break;
+            }
+        });
+
+        // Touch navigation for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+            
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0) {
+                    nextSlide(); // Swipe left - next slide
+                } else {
+                    previousSlide(); // Swipe right - previous slide
+                }
+            }
+        }
+
+        // Auto-resize for iframe
+        function resizeForIframe() {
+            if (window.self !== window.top) {
+                // We're in an iframe
+                const message = {
+                    type: 'resize',
+                    height: document.body.scrollHeight
+                };
+                window.parent.postMessage(message, '*');
+            }
+        }
+
+        window.addEventListener('load', resizeForIframe);
+        window.addEventListener('resize', resizeForIframe);
+    </script>
+</body>
+</html>

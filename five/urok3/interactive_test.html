@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест: Операційна система та файлова система</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .test-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .test-header {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .test-title {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .test-subtitle {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .fullscreen-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .fullscreen-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .progress-container {
+            background: rgba(0, 0, 0, 0.1);
+            height: 8px;
+            margin: 20px 30px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #81C784);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+
+        .question-container {
+            padding: 40px;
+            min-height: 400px;
+        }
+
+        .question {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .question.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question-number {
+            color: #666;
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .question-text {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 30px;
+            line-height: 1.4;
+        }
+
+        .options {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .option {
+            background: #f8f9fa;
+            border: 3px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 18px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option:hover {
+            border-color: #4CAF50;
+            background: #f0f8f0;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.2);
+        }
+
+        .option.selected {
+            border-color: #4CAF50;
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+
+        .option.correct {
+            border-color: #4CAF50;
+            background: #c8e6c9;
+            color: #1b5e20;
+        }
+
+        .option.incorrect {
+            border-color: #f44336;
+            background: #ffcdd2;
+            color: #c62828;
+        }
+
+        .option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .option:hover::before {
+            left: 100%;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .results {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .results.show {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .score {
+            font-size: 48px;
+            font-weight: bold;
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+
+        .score-text {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .restart-btn {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+        }
+
+        .restart-btn:hover {
+            box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+        }
+
+        /* Fullscreen styles */
+        .fullscreen {
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            width: 100vw !important;
+            height: 100vh !important;
+            max-width: none !important;
+            margin: 0 !important;
+            z-index: 9999;
+            border-radius: 0 !important;
+        }
+
+        .fullscreen body {
+            padding: 0;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .test-container {
+                border-radius: 15px;
+            }
+
+            .test-header {
+                padding: 20px;
+            }
+
+            .test-title {
+                font-size: 24px;
+            }
+
+            .test-subtitle {
+                font-size: 16px;
+            }
+
+            .fullscreen-btn {
+                top: 15px;
+                right: 15px;
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+
+            .question-container {
+                padding: 20px;
+                min-height: 300px;
+            }
+
+            .question-text {
+                font-size: 20px;
+            }
+
+            .option {
+                padding: 15px;
+                font-size: 16px;
+            }
+
+            .btn {
+                padding: 12px 24px;
+                font-size: 16px;
+            }
+
+            .controls {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .score {
+                font-size: 36px;
+            }
+
+            .score-text {
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .test-title {
+                font-size: 20px;
+            }
+
+            .question-text {
+                font-size: 18px;
+            }
+
+            .option {
+                font-size: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container" id="testContainer">
+        <div class="test-header">
+            <h1 class="test-title">Інтерактивний тест</h1>
+            <p class="test-subtitle">Операційна система та файлова система</p>
+            <button class="fullscreen-btn" onclick="toggleFullscreen()">⛶ На весь екран</button>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <div class="question-container">
+            <!-- Question 1 -->
+            <div class="question active" data-question="0">
+                <div class="question-number">Питання 1 з 10</div>
+                <div class="question-text">Що таке операційна система?</div>
+                <div class="options">
+                    <div class="option" onclick="selectOption(this, false)">Програма для створення документів</div>
+                    <div class="option" onclick="selectOption(this, true)">Набір програм для забезпечення взаємодії всіх пристроїв комп'ютера</div>
+                    <div class="option" onclick="selectOption(this, false)">Пристрій для зберігання даних</div>
+                    <div class="option" onclick="selectOption(this, false)">Програма для перегляду інтернету</div>
+                </div>
+                <div class="controls">
+                    <button class="btn" onclick="nextQuestion()" id="nextBtn" disabled>Далі</button>
+                </div>
+            </div>
+
+            <!-- Question 2 -->
+            <div class="question" data-question="1">
+                <div class="question-number">Питання 2 з 10</div>
+                <div class="question-text">Що НЕ входить до структури операційної системи?</div>
+                <div class="options">
+                    <div class="option" onclick="selectOption(this, false)">Ядро</div>
+                    <div class="option" onclick="selectOption(this, false)">Утиліти</div>
+                    <div class="option" onclick="selectOption(this, false)">Драйвери</div>
+                    <div class="option" onclick="selectOption(this, true)">Принтер</div>
+                </div>
+                <div class="controls">
+                    <button class="btn" onclick="nextQuestion()" disabled>Далі</button>
+                </div>
+            </div>
+
+            <!-- Question 3 -->
+            <div class="question" data-question="2">
+                <div class="question-number">Питання 3 з 10</div>
+                <div class="question-text">Що таке графічний інтерфейс?</div>
+                <div class="options">
+                    <div class="option" onclick="selectOption(this, false)">Програма для малювання</div>
+                    <div class="option" onclick="selectOption(this, true)">Оболонка для взаємодії користувача з комп'ютером за допомогою графічних елементів</div>
+                    <div class="option" onclick="selectOption(this, false)">Пристрій вводу інформації</div>
+                    <div class="option" onclick="selectOption(this, false)">Монітор комп'ютера</div>
+                </div>
+                <div class="controls">
+                    <button class="btn" onclick="nextQuestion()" disabled>Далі</button>
+                </div>
+            </div>
+
+            <!-- Question 4 -->
+            <div class="question" data-question="3">
+                <div class="question-number">Питання 4 з 10</div>
+                <div class="question-text">Що таке Робочий стіл?</div>
+                <div class="options">
+                    <div class="option" onclick="selectOption(this, false)">Стіл, за яким працює користувач</div>
+                    <div class="option" onclick="selectOption(this, true)">Головна область екрана після завантаження операційної системи</div>
+                    <div class="option" onclick="selectOption(this, false)">Програма для роботи з файлами</div>
+                    <div class="option" onclick="selectOption(this, false)">Папка з документами</div>
+                </div>
+                <div class="controls">
+                    <button class="btn" onclick="nextQuestion()" disabled>Далі</button>
+                </div>
+            </div>
+
+            <!-- Question 5 -->
+            <div class="question" data-question="4">
+                <div class="question-number">Питання 5 з 10</div>
+                <div class="question-text">Що таке ярлик?</div>
+                <div class="options">
+                    <div class="option" onclick="selectOption(this, true)">Картинка з посиланням для запуску програми</div>
+                    <div class="option" onclick="selectOption(this, false)">Папка з файлами</div>
+                    <div class="option" onclick="selectOption(this, false)">Текстовий документ</div>
+                    <div class="option" onclick="selectOption(this, false)">Зображення на робочому столі</div>
+                </div>
+                <div class="controls">
+                    <button class="btn" onclick="nextQuestion()" disabled>Далі</button>
+                </div>
+            </div>
+
+            <!-- Question 6 -->
+            <div class="question" data-question="5">
+                <div class="question-number">Питання 6 з 10</div>
+                <div class="question-text">Що таке файл?</div>
+                <div class="options">
+                    <div class="option" onclick="selectOption(this, false)">Папка для зберігання даних</div>
+                    <div class="option" onclick="selectOption(this, true)">Впорядкована сукупність даних певного типу з назвою</div>
+                    <div class="option" onclick="selectOption(this, false)">Програма для роботи з текстом</div>
+                    <div class="option" onclick="selectOption(this, false)">Пристрій для зберігання інформації</div>
+                </div>
+                <div class="controls">
+                    <button class="btn" onclick="nextQuestion()" disabled>Далі</button>
+                </div>
+            </div>
+
+            <!-- Question 7 -->
+            <div class="question" data-question="6">
+                <div class="question-number">Питання 7 з 10</div>
+                <div class="question-text">З чого складається назва файлу?</div>
+                <div class="options">
+                    <div class="option" onclick="selectOption(this, false)">Тільки з імені</div>
+                    <div class="option" onclick="selectOption(this, true)">З імені і розширення, розділених крапкою</div>
+                    <div class="option" onclick="selectOption(this, false)">З дати створення та імені</div>
+                    <div class="option" onclick="selectOption(this, false)">З розміру та типу файлу</div>
+                </div>
+                <div class="controls">
+                    <button class="btn" onclick="nextQuestion()" disabled>Далі</button>
+                </div>
+            </div>
+
+            <!-- Question 8 -->
+            <div class="question" data-question="7">
+                <div class="question-number">Питання 8 з 10</div>
+                <div class="question-text">Яка різниця між копіюванням та переміщенням файлу?</div>
+                <div class="options">
+                    <div class="option" onclick="selectOption(this, false)">Різниці немає</div>
+                    <div class="option" onclick="selectOption(this, true)">При копіюванні створюється копія, при переміщенні файл переноситься в нове місце</div>
+                    <div class="option" onclick="selectOption(this, false)">Копіювання працює тільки з текстовими файлами</div>
+                    <div class="option" onclick="selectOption(this, false)">Переміщення видаляє файл назавжди</div>
+                </div>
+                <div class="controls">
+                    <button class="btn" onclick="nextQuestion()" disabled>Далі</button>
+                </div>
+            </div>
+
+            <!-- Question 9 -->
+            <div class="question" data-question="8">
+                <div class="question-number">Питання 9 з 10</div>
+                <div class="question-text">Як викликати контекстне меню?</div>
+                <div class="options">
+                    <div class="option" onclick="selectOption(this, false)">Подвійним клацанням лівої кнопки миші</div>
+                    <div class="option" onclick="selectOption(this, true)">Натисканням правої кнопки миші</div>
+                    <div class="option" onclick="selectOption(this, false)">Натисканням клавіші Enter</div>
+                    <div class="option" onclick="selectOption(this, false)">Утриманням лівої кнопки миші</div>
+                </div>
+                <div class="controls">
+                    <button class="btn" onclick="nextQuestion()" disabled>Далі</button>
+                </div>
+            </div>
+
+            <!-- Question 10 -->
+            <div class="question" data-question="9">
+                <div class="question-number">Питання 10 з 10</div>
+                <div class="question-text">Що таке файлова система?</div>
+                <div class="options">
+                    <div class="option" onclick="selectOption(this, false)">Програма для створення файлів</div>
+                    <div class="option" onclick="selectOption(this, true)">Спосіб організації даних для їх збереження у вигляді файлів</div>
+                    <div class="option" onclick="selectOption(this, false)">Папка з усіма файлами комп'ютера</div>
+                    <div class="option" onclick="selectOption(this, false)">Жорсткий диск комп'ютера</div>
+                </div>
+                <div class="controls">
+                    <button class="btn" onclick="showResults()" disabled>Завершити тест</button>
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div class="results" id="results">
+                <div class="score" id="scoreDisplay">0/10</div>
+                <div class="score-text" id="scoreText">Ваш результат</div>
+                <button class="btn restart-btn" onclick="restartTest()">Пройти тест знову</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentQuestion = 0;
+        let score = 0;
+        let answers = [];
+        let selectedOption = null;
+
+        function selectOption(element, isCorrect) {
+            // Remove previous selection
+            const options = element.parentNode.querySelectorAll('.option');
+            options.forEach(opt => opt.classList.remove('selected'));
+            
+            // Select current option
+            element.classList.add('selected');
+            selectedOption = { element, isCorrect };
+            
+            // Enable next button
+            const nextBtn = element.closest('.question').querySelector('.btn');
+            nextBtn.disabled = false;
+        }
+
+        function nextQuestion() {
+            if (!selectedOption) return;
+            
+            // Show correct/incorrect answers
+            const options = document.querySelectorAll('.question.active .option');
+            options.forEach(opt => {
+                const isCorrect = opt.onclick.toString().includes('true');
+                if (isCorrect) {
+                    opt.classList.add('correct');
+                } else if (opt.classList.contains('selected') && !selectedOption.isCorrect) {
+                    opt.classList.add('incorrect');
+                }
+            });
+            
+            // Update score
+            if (selectedOption.isCorrect) {
+                score++;
+            }
+            answers.push(selectedOption.isCorrect);
+            
+            // Wait a bit to show the result, then move to next question
+            setTimeout(() => {
+                const currentQ = document.querySelector('.question.active');
+                currentQ.classList.remove('active');
+                
+                currentQuestion++;
+                updateProgress();
+                
+                if (currentQuestion < 10) {
+                    const nextQ = document.querySelector(`.question[data-question="${currentQuestion}"]`);
+                    nextQ.classList.add('active');
+                }
+                
+                selectedOption = null;
+            }, 1500);
+        }
+
+        function showResults() {
+            if (!selectedOption) return;
+            
+            // Show correct/incorrect answers for last question
+            const options = document.querySelectorAll('.question.active .option');
+            options.forEach(opt => {
+                const isCorrect = opt.onclick.toString().includes('true');
+                if (isCorrect) {
+                    opt.classList.add('correct');
+                } else if (opt.classList.contains('selected') && !selectedOption.isCorrect) {
+                    opt.classList.add('incorrect');
+                }
+            });
+            
+            // Update final score
+            if (selectedOption.isCorrect) {
+                score++;
+            }
+            answers.push(selectedOption.isCorrect);
+            
+            setTimeout(() => {
+                document.querySelector('.question.active').classList.remove('active');
+                updateProgress();
+                displayResults();
+            }, 1500);
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / 10) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function displayResults() {
+            const resultsDiv = document.getElementById('results');
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            const scoreText = document.getElementById('scoreText');
+            
+            scoreDisplay.textContent = `${score}/10`;
+            
+            let message = '';
+            let percentage = (score / 10) * 100;
+            
+            if (percentage >= 90) {
+                message = 'Відмінно! Ви чудово засвоїли матеріал! 🎉';
+                scoreDisplay.style.color = '#4CAF50';
+            } else if (percentage >= 70) {
+                message = 'Добре! Більшість питань ви знаєте правильно! 👍';
+                scoreDisplay.style.color = '#2196F3';
+            } else if (percentage >= 50) {
+                message = 'Задовільно. Варто повторити матеріал. 📚';
+                scoreDisplay.style.color = '#FF9800';
+            } else {
+                message = 'Потрібно краще вивчити тему. Спробуйте ще раз! 💪';
+                scoreDisplay.style.color = '#f44336';
+            }
+            
+            scoreText.textContent = message;
+            resultsDiv.classList.add('show');
+        }
+
+        function restartTest() {
+            currentQuestion = 0;
+            score = 0;
+            answers = [];
+            selectedOption = null;
+            
+            // Reset all questions
+            document.querySelectorAll('.question').forEach((q, index) => {
+                q.classList.remove('active');
+                if (index === 0) q.classList.add('active');
+                
+                // Reset options
+                q.querySelectorAll('.option').forEach(opt => {
+                    opt.classList.remove('selected', 'correct', 'incorrect');
+                });
+                
+                // Reset buttons
+                q.querySelectorAll('.btn').forEach(btn => {
+                    btn.disabled = true;
+                });
+            });
+            
+            // Hide results
+            document.getElementById('results').classList.remove('show');
+            
+            // Reset progress
+            document.getElementById('progressBar').style.width = '0%';
+        }
+
+        function toggleFullscreen() {
+            const container = document.getElementById('testContainer');
+            const btn = document.querySelector('.fullscreen-btn');
+            
+            if (!container.classList.contains('fullscreen')) {
+                container.classList.add('fullscreen');
+                btn.textContent = '⛶ Вийти з повноекранного режиму';
+                
+                // For iframe context
+                if (window.parent !== window) {
+                    try {
+                        window.parent.postMessage({
+                            type: 'requestFullscreen',
+                            element: container
+                        }, '*');
+                    } catch (e) {
+                        console.log('Cannot communicate with parent frame');
+                    }
+                }
+            } else {
+                container.classList.remove('fullscreen');
+                btn.textContent = '⛶ На весь екран';
+                
+                // For iframe context
+                if (window.parent !== window) {
+                    try {
+                        window.parent.postMessage({
+                            type: 'exitFullscreen'
+                        }, '*');
+                    } catch (e) {
+                        console.log('Cannot communicate with parent frame');
+                    }
+                }
+            }
+        }
+
+        // Handle messages from parent frame (for iframe integration)
+        window.addEventListener('message', function(event) {
+            if (event.data.type === 'fullscreenChange') {
+                const container = document.getElementById('testContainer');
+                const btn = document.querySelector('.fullscreen-btn');
+                
+                if (event.data.isFullscreen) {
+                    container.classList.add('fullscreen');
+                    btn.textContent = '⛶ Вийти з повноекранного режиму';
+                } else {
+                    container.classList.remove('fullscreen');
+                    btn.textContent = '⛶ На весь екран';
+                }
+            }
+        });
+
+        // Initialize progress bar
+        updateProgress();
+    </script>
+</body>
+</html>

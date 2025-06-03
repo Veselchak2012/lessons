@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Інформаційні технології та їхня роль у житті сучасної людини</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .presentation-container {
+            width: 100%;
+            max-width: 1400px;
+            height: 800px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .presentation-container.fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            max-width: none;
+            border-radius: 0;
+            z-index: 1000;
+        }
+
+        .slide {
+            display: none;
+            padding: 60px;
+            height: 100%;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            position: relative;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .slide h1 {
+            font-size: 3em;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            animation: slideInDown 0.8s ease-out;
+        }
+
+        .slide h2 {
+            font-size: 2.5em;
+            color: #34495e;
+            text-align: center;
+            margin-bottom: 40px;
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        .slide h3 {
+            font-size: 2em;
+            color: #2980b9;
+            margin-bottom: 25px;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 20px 0;
+        }
+
+        .info-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .info-card h4 {
+            color: #2980b9;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .info-card h4::before {
+            content: "💡";
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        .process-list {
+            list-style: none;
+            margin: 20px 0;
+        }
+
+        .process-list li {
+            background: white;
+            margin: 10px 0;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #3498db;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .process-list li:hover {
+            transform: translateX(10px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        .process-list li::before {
+            content: "▶";
+            color: #3498db;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .units-table {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+
+        .units-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .units-table th,
+        .units-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        .units-table th {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            font-weight: bold;
+        }
+
+        .units-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .units-table tr:hover {
+            background: #e3f2fd;
+            transition: background 0.3s ease;
+        }
+
+        .navigation {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .nav-btn:hover {
+            background: linear-gradient(135deg, #2980b9, #1f618d);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .nav-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-counter {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .fullscreen-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(52, 73, 94, 0.9);
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s ease;
+            z-index: 200;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            font-weight: bold;
+        }
+
+        .fullscreen-btn:hover {
+            background: rgba(52, 73, 94, 1);
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .presentation-container.fullscreen .fullscreen-btn {
+            background: rgba(231, 76, 60, 0.9);
+        }
+
+        .presentation-container.fullscreen .fullscreen-btn:hover {
+            background: rgba(231, 76, 60, 1);
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease;
+        }
+
+        .summary-card:hover {
+            transform: scale(1.05);
+        }
+
+        .summary-card h4 {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+        }
+
+        .highlight-text {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #ff6b6b;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .slide.active * {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .presentation-container {
+                height: 90vh;
+            }
+            
+            .slide {
+                padding: 30px 20px;
+            }
+            
+            .slide h1 {
+                font-size: 2em;
+            }
+            
+            .slide h2 {
+                font-size: 1.8em;
+            }
+            
+            .slide h3 {
+                font-size: 1.5em;
+            }
+            
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .info-card {
+                padding: 20px;
+            }
+            
+            .navigation {
+                bottom: 10px;
+                gap: 10px;
+            }
+            
+            .nav-btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+            
+            .units-table {
+                overflow-x: auto;
+            }
+            
+            .summary-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .slide h1 {
+                font-size: 1.6em;
+            }
+            
+            .slide h2 {
+                font-size: 1.4em;
+            }
+            
+            .slide {
+                padding: 20px 15px;
+            }
+            
+            .info-card {
+                padding: 15px;
+            }
+            
+            .process-list li {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container" id="presentation">
+        <button class="fullscreen-btn" onclick="toggleFullscreen()" title="Повний екран / Вийти з повного екрану">⛶</button>
+        <div class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">8</span>
+        </div>
+
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <h1>Інформаційні технології</h1>
+            <h2>та їхня роль у житті сучасної людини</h2>
+            <div class="highlight-text">
+                У сучасному світі інформаційні технології відіграють провідну роль, тому кожна людина XXI століття повинна володіти хоча б базовими знаннями та вміннями.
+            </div>
+        </div>
+
+        <!-- Slide 2: Information Systems -->
+        <div class="slide">
+            <h2>Інформаційна система</h2>
+            <div class="highlight-text">
+                <strong>Інформаційна система</strong> — це комунікаційна система, що забезпечує інформаційні процеси: пошук, збирання, зберігання, передавання, опрацювання, знищення інформації.
+            </div>
+            <div class="content-grid">
+                <div class="info-card">
+                    <h4>Апаратна складова (Hardware)</h4>
+                    <p>Комплекс технічних засобів: пристрої опрацювання і зберігання даних, пристрої введення і виведення, засоби комунікації</p>
+                </div>
+                <div class="info-card">
+                    <h4>Програмна складова (Software)</h4>
+                    <p>Загальний термін для різних видів програм, які використовують для роботи за комп'ютерами та пов'язаними з ними пристроями</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Information Processes -->
+        <div class="slide">
+            <h2>Інформаційні процеси</h2>
+            <p style="font-size: 1.2em; text-align: center; margin-bottom: 30px;">В інформаційній системі відбуваються такі процеси:</p>
+            <ul class="process-list">
+                <li><strong>Пошук інформації</strong> — знаходження потрібних даних</li>
+                <li><strong>Введення інформації</strong> — отримання з різних джерел</li>
+                <li><strong>Опрацювання</strong> — перетворення інформації</li>
+                <li><strong>Зберігання інформації</strong> — накопичення даних</li>
+                <li><strong>Виведення інформації</strong> — для користувача</li>
+                <li><strong>Відправка/отримання</strong> — через мережу</li>
+            </ul>
+        </div>
+
+        <!-- Slide 4: Software Components -->
+        <div class="slide">
+            <h2>Програмна складова комп'ютера</h2>
+            <div class="content-grid">
+                <div class="info-card">
+                    <h4>Системне ПЗ</h4>
+                    <p>• Операційна система<br>• Сервісні програми</p>
+                </div>
+                <div class="info-card">
+                    <h4>Прикладне ПЗ</h4>
+                    <p>• Програми загального призначення<br>• Програми спеціального призначення</p>
+                </div>
+                <div class="info-card">
+                    <h4>Інструментальні засоби</h4>
+                    <p>• Системи програмування<br>• Інструментальні мови</p>
+                </div>
+            </div>
+            <div class="highlight-text">
+                <strong>Операційна система</strong> — це набір програм для забезпечення взаємодії всіх пристроїв комп'ютера і виконання користувачем різних дій.
+            </div>
+        </div>
+
+        <!-- Slide 5: Information Classification -->
+        <div class="slide">
+            <h2>Класифікація інформації</h2>
+            <div class="content-grid">
+                <div class="info-card">
+                    <h4>За способом отримання</h4>
+                    <p>• Візуальна<br>• Аудіальна<br>• Нюхова<br>• Смакова<br>• Тактильна</p>
+                </div>
+                <div class="info-card">
+                    <h4>За способом подання</h4>
+                    <p>• Текстова<br>• Графічна<br>• Звукова<br>• Комбінована<br>• Умовні жести</p>
+                </div>
+                <div class="info-card">
+                    <h4>За типом даних</h4>
+                    <p>• Текстові<br>• Звукові<br>• Графічні<br>• Відеодані<br>• Числові</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Units of Information -->
+        <div class="slide">
+            <h2>Одиниці вимірювання інформації</h2>
+            <div class="units-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Одиниця</th>
+                            <th>Розмір</th>
+                            <th>У бітах</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Біт</strong></td>
+                            <td>0 або 1</td>
+                            <td>1 біт</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Байт</strong></td>
+                            <td>8 біт</td>
+                            <td>2³ біт</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Кілобайт (Кб)</strong></td>
+                            <td>1024 байт</td>
+                            <td>2¹⁰ байт</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Мегабайт (Мб)</strong></td>
+                            <td>1024 Кб</td>
+                            <td>2²⁰ байт</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Гігабайт (Гб)</strong></td>
+                            <td>1024 Мб</td>
+                            <td>2³⁰ байт</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Терабайт (Тб)</strong></td>
+                            <td>1024 Гб</td>
+                            <td>2⁴⁰ байт</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Slide 7: Storage Media -->
+        <div class="slide">
+            <h2>Комп'ютерні носії інформації</h2>
+            <div class="content-grid">
+                <div class="info-card">
+                    <h4>Магнітні накопичувачі</h4>
+                    <p>Історично перші носії для ПК. Дебют магнітної стрічки — 1952 рік для машини UNIVAC I.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Оптичні накопичувачі</h4>
+                    <p>CD-ROM, CD-R/RW, DVD-R/RW, Blu-ray диски. Інформацію зчитують лазером.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Флеш-накопичувачі</h4>
+                    <p><strong>Переваги:</strong><br>• Компактність і мобільність<br>• Великий обсяг<br>• Висока швидкість<br>• Низьке енергоспоживання</p>
+                </div>
+                <div class="info-card">
+                    <h4>SSD-диски</h4>
+                    <p>Сучасні твердотільні накопичувачі з високою швидкістю роботи та надійністю.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Summary -->
+        <div class="slide">
+            <h2>Підсумок</h2>
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <h4>📊 Інформаційні системи</h4>
+                    <p>Складаються з апаратної та програмної складових для обробки інформації</p>
+                </div>
+                <div class="summary-card">
+                    <h4>⚙️ Інформаційні процеси</h4>
+                    <p>Пошук, введення, опрацювання, зберігання, виведення та передача даних</p>
+                </div>
+                <div class="summary-card">
+                    <h4>💻 Програмне забезпечення</h4>
+                    <p>Системне, прикладне та інструментальне ПЗ для різних завдань</p>
+                </div>
+                <div class="summary-card">
+                    <h4>📏 Одиниці вимірювання</h4>
+                    <p>Від біта до терабайта — для вимірювання обсягу інформації</p>
+                </div>
+                <div class="summary-card">
+                    <h4>💾 Носії інформації</h4>
+                    <p>Магнітні, оптичні, флеш-накопичувачі та SSD-диски</p>
+                </div>
+                <div class="summary-card">
+                    <h4>🎯 Сучасність</h4>
+                    <p>ІТ-грамотність — необхідна навичка людини XXI століття</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="navigation">
+            <button class="nav-btn" onclick="prevSlide()" id="prevBtn">← Попередній</button>
+            <button class="nav-btn" onclick="nextSlide()" id="nextBtn">Наступний →</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(index) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[index].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = index + 1;
+            
+            // Update navigation buttons
+            document.getElementById('prevBtn').disabled = index === 0;
+            document.getElementById('nextBtn').disabled = index === totalSlides - 1;
+        }
+
+        function nextSlide() {
+            if (currentSlideIndex < totalSlides - 1) {
+                currentSlideIndex++;
+                showSlide(currentSlideIndex);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlideIndex > 0) {
+                currentSlideIndex--;
+                showSlide(currentSlideIndex);
+            }
+        }
+
+        function toggleFullscreen() {
+    const elem = document.documentElement;
+
+    if (!document.fullscreenElement) {
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+        } else if (elem.webkitRequestFullscreen) { /* Safari */
+            elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) { /* IE11 */
+            elem.msRequestFullscreen();
+        }
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        }
+    }
+}
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            switch(e.key) {
+                case 'ArrowLeft':
+                    prevSlide();
+                    break;
+                case 'ArrowRight':
+                    nextSlide();
+                    break;
+                case 'Escape':
+                    const presentation = document.getElementById('presentation');
+                    if (presentation.classList.contains('fullscreen')) {
+                        toggleFullscreen();
+                    }
+                    break;
+                case 'F11':
+                    e.preventDefault();
+                    toggleFullscreen();
+                    break;
+            }
+        });
+
+        // Touch/swipe support for mobile
+        let startX = 0;
+        let endX = 0;
+
+        document.addEventListener('touchstart', function(e) {
+            startX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', function(e) {
+            endX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const threshold = 50;
+            const diff = startX - endX;
+            
+            if (Math.abs(diff) > threshold) {
+                if (diff > 0) {
+                    nextSlide(); // Swipe left = next slide
+                } else {
+                    prevSlide(); // Swipe right = previous slide
+                }
+            }
+        }
+
+        // Initialize
+        showSlide(0);
+
+        // Add click animation to cards
+        document.querySelectorAll('.info-card, .process-list li, .summary-card').forEach(element => {
+            element.addEventListener('click', function() {
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 150);
+            });
+        });
+    </script>
+</body>
+</html>

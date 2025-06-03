@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест: Комп'ютери та їх різновиди</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .test-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .test-header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .fullscreen-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .fullscreen-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .test-title {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .test-subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .progress-container {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #e9ecef;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            margin: 0 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4facfe, #00f2fe);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 5px;
+        }
+
+        .question-container {
+            padding: 40px;
+            min-height: 400px;
+        }
+
+        .question {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .question.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question-title {
+            font-size: 1.8em;
+            margin-bottom: 30px;
+            color: #2c3e50;
+            line-height: 1.4;
+        }
+
+        .options {
+            display: grid;
+            gap: 15px;
+        }
+
+        .option {
+            background: #f8f9fa;
+            border: 3px solid #e9ecef;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border-color: #4facfe;
+        }
+
+        .option.selected {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border-color: #4facfe;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.3);
+        }
+
+        .option.correct {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            border-color: #56ab2f;
+            animation: correctPulse 0.6s ease;
+        }
+
+        .option.incorrect {
+            background: linear-gradient(135deg, #ff512f 0%, #f09819 100%);
+            border-color: #ff512f;
+            animation: incorrectShake 0.6s ease;
+        }
+
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        @keyframes incorrectShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .navigation {
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+            border-top: 3px solid #e9ecef;
+        }
+
+        .nav-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .prev-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .results {
+            display: none;
+            text-align: center;
+            padding: 50px;
+        }
+
+        .results.show {
+            display: block;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .score-excellent {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+        }
+
+        .score-good {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .score-fair {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .score-poor {
+            background: linear-gradient(135deg, #ff512f 0%, #f09819 100%);
+        }
+
+        .results-text {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .restart-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Адаптивність */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .test-title {
+                font-size: 1.8em;
+            }
+
+            .test-subtitle {
+                font-size: 1em;
+            }
+
+            .test-header {
+                padding: 20px;
+            }
+
+            .question-container {
+                padding: 20px;
+                min-height: 300px;
+            }
+
+            .question-title {
+                font-size: 1.4em;
+                margin-bottom: 20px;
+            }
+
+            .option {
+                padding: 15px;
+                font-size: 1em;
+            }
+
+            .navigation {
+                padding: 20px;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .nav-btn {
+                width: 100%;
+                padding: 12px 20px;
+                font-size: 1em;
+            }
+
+            .progress-container {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .progress-bar {
+                margin: 0;
+                width: 100%;
+            }
+
+            .fullscreen-btn {
+                position: static;
+                margin-bottom: 15px;
+                width: fit-content;
+                align-self: center;
+            }
+
+            .score-circle {
+                width: 150px;
+                height: 150px;
+                font-size: 2.5em;
+            }
+
+            .results {
+                padding: 30px 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .test-title {
+                font-size: 1.5em;
+            }
+
+            .question-title {
+                font-size: 1.2em;
+            }
+
+            .option {
+                padding: 12px;
+                font-size: 0.9em;
+            }
+
+            .score-circle {
+                width: 120px;
+                height: 120px;
+                font-size: 2em;
+            }
+        }
+
+        /* Fullscreen styles */
+        .test-container.fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            max-width: none;
+            border-radius: 0;
+            z-index: 9999;
+        }
+
+        body.fullscreen-mode {
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container" id="testContainer">
+        <div class="test-header">
+            <button class="fullscreen-btn" id="fullscreenBtn" onclick="toggleFullscreen()">
+                📱 На весь екран
+            </button>
+            <h1 class="test-title">Тест з інформатики</h1>
+            <p class="test-subtitle">Комп'ютери та їх різновиди</p>
+        </div>
+
+        <div class="progress-container">
+            <span id="questionCounter">Питання 1 з 10</span>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <span id="scoreDisplay">Бали: 0</span>
+        </div>
+
+        <div class="question-container" id="questionContainer">
+            <!-- Questions will be populated by JavaScript -->
+        </div>
+
+        <div class="navigation">
+            <button class="nav-btn prev-btn" id="prevBtn" onclick="previousQuestion()" disabled>
+                ← Назад
+            </button>
+            <button class="nav-btn next-btn" id="nextBtn" onclick="nextQuestion()">
+                Далі →
+            </button>
+        </div>
+
+        <div class="results" id="results">
+            <div class="score-circle" id="scoreCircle">
+                <span id="finalScore">0%</span>
+            </div>
+            <div class="results-text" id="resultsText"></div>
+            <button class="restart-btn" onclick="restartTest()">
+                🔄 Пройти тест знову
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "Що означає слово \"комп'ютер\" в перекладі з англійської мови?",
+                options: ["Обчислювач", "Машина", "Пристрій", "Електроніка"],
+                correct: 0
+            },
+            {
+                question: "На які основні категорії поділяють комп'ютери?",
+                options: [
+                    "Великі, середні та малі",
+                    "Суперкомп'ютери, персональні комп'ютери та мікрокомп'ютери",
+                    "Швидкі та повільні",
+                    "Дорогі та дешеві"
+                ],
+                correct: 1
+            },
+            {
+                question: "Які комп'ютери є найпоширенішими сьогодні?",
+                options: ["Суперкомп'ютери", "Персональні комп'ютери", "Мікрокомп'ютери", "Планшети"],
+                correct: 1
+            },
+            {
+                question: "Що входить до складу настільних комп'ютерів?",
+                options: [
+                    "Тільки монітор",
+                    "Системний блок та периферійні пристрої",
+                    "Тільки клавіатура та миша",
+                    "Тільки системний блок"
+                ],
+                correct: 1
+            },
+            {
+                question: "Що є головною перевагою портативних комп'ютерів?",
+                options: [
+                    "Висока продуктивність",
+                    "Великий екран",
+                    "Мобільність та наявність батареї",
+                    "Низька вартість"
+                ],
+                correct: 2
+            },
+            {
+                question: "Що таке системний блок?",
+                options: [
+                    "Монітор комп'ютера",
+                    "Корпус з основними функціональними компонентами",
+                    "Клавіатура",
+                    "Зовнішній накопичувач"
+                ],
+                correct: 1
+            },
+            {
+                question: "Яке призначення процесора (CPU)?",
+                options: [
+                    "Зберігання даних",
+                    "Виведення зображення",
+                    "Виконання програмного коду та обробка даних",
+                    "Підключення до мережі"
+                ],
+                correct: 2
+            },
+            {
+                question: "Що відбувається з даними в оперативній пам'яті (RAM) після вимкнення живлення?",
+                options: [
+                    "Залишаються незмінними",
+                    "Переносяться на жорсткий диск",
+                    "Очищуються",
+                    "Архівуються"
+                ],
+                correct: 2
+            },
+            {
+                question: "Яке призначення материнської плати?",
+                options: [
+                    "Охолодження системи",
+                    "Забезпечення роботи та комунікації всіх компонентів ПК",
+                    "Зберігання файлів",
+                    "Виведення звуку"
+                ],
+                correct: 1
+            },
+            {
+                question: "Яка різниця між жорсткими дисками (HDD) та твердотілими накопичувачами (SSD)?",
+                options: [
+                    "HDD швидші за SSD",
+                    "SSD мають механічні частини",
+                    "SSD швидші та не мають рухомих частин",
+                    "Між ними немає різниці"
+                ],
+                correct: 2
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let userAnswers = [];
+        let testCompleted = false;
+
+        function initTest() {
+            renderQuestion();
+            updateProgress();
+            updateNavigation();
+        }
+
+        function renderQuestion() {
+            const container = document.getElementById('questionContainer');
+            const question = questions[currentQuestion];
+            
+            container.innerHTML = `
+                <div class="question active">
+                    <h2 class="question-title">${question.question}</h2>
+                    <div class="options">
+                        ${question.options.map((option, index) => `
+                            <div class="option" onclick="selectAnswer(${index})" data-index="${index}">
+                                ${option}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            // Відновити вибрану відповідь, якщо вона є
+            if (userAnswers[currentQuestion] !== undefined) {
+                const selectedOption = container.querySelector(`[data-index="${userAnswers[currentQuestion]}"]`);
+                if (selectedOption) {
+                    selectedOption.classList.add('selected');
+                }
+            }
+            
+            // Оновити відображення поточних балів
+            let currentScore = 0;
+            for (let i = 0; i < userAnswers.length; i++) {
+                if (userAnswers[i] === questions[i].correct) {
+                    currentScore++;
+                }
+            }
+            document.getElementById('scoreDisplay').textContent = `Бали: ${currentScore}`;
+        }
+
+        function selectAnswer(answerIndex) {
+            if (testCompleted) return;
+
+            // Забрати виділення з усіх опцій
+            document.querySelectorAll('.option').forEach(option => {
+                option.classList.remove('selected');
+            });
+
+            // Виділити вибрану опцію
+            const selectedOption = document.querySelector(`[data-index="${answerIndex}"]`);
+            selectedOption.classList.add('selected');
+
+            // Зберегти відповідь та оновити бали
+            userAnswers[currentQuestion] = answerIndex;
+            
+            // Підрахувати поточні бали
+            let currentScore = 0;
+            for (let i = 0; i < userAnswers.length; i++) {
+                if (userAnswers[i] === questions[i].correct) {
+                    currentScore++;
+                }
+            }
+            
+            // Оновити відображення балів
+            document.getElementById('scoreDisplay').textContent = `Бали: ${currentScore}`;
+
+            // Оновити кнопку "Далі"
+            updateNavigation();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+                updateProgress();
+                updateNavigation();
+            } else {
+                finishTest();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                renderQuestion();
+                updateProgress();
+                updateNavigation();
+            }
+        }
+
+        function updateProgress() {
+            const progressFill = document.getElementById('progressFill');
+            const questionCounter = document.getElementById('questionCounter');
+            
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            progressFill.style.width = progress + '%';
+            questionCounter.textContent = `Питання ${currentQuestion + 1} з ${questions.length}`;
+        }
+
+        function updateNavigation() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            prevBtn.disabled = currentQuestion === 0;
+            
+            if (currentQuestion === questions.length - 1) {
+                nextBtn.textContent = 'Завершити тест';
+                nextBtn.disabled = userAnswers[currentQuestion] === undefined;
+            } else {
+                nextBtn.textContent = 'Далі →';
+                nextBtn.disabled = userAnswers[currentQuestion] === undefined;
+            }
+        }
+
+        function finishTest() {
+            testCompleted = true;
+            
+            // Підрахувати результати
+            score = 0;
+            for (let i = 0; i < questions.length; i++) {
+                if (userAnswers[i] === questions[i].correct) {
+                    score++;
+                }
+            }
+
+            showResults();
+        }
+
+        function showResults() {
+            const questionContainer = document.getElementById('questionContainer');
+            const navigation = document.getElementById('navigation');
+            const results = document.getElementById('results');
+            const scoreCircle = document.getElementById('scoreCircle');
+            const finalScore = document.getElementById('finalScore');
+            const resultsText = document.getElementById('resultsText');
+            const scoreDisplay = document.getElementById('scoreDisplay');
+
+            questionContainer.style.display = 'none';
+            document.querySelector('.navigation').style.display = 'none';
+            results.classList.add('show');
+
+            const percentage = Math.round((score / questions.length) * 100);
+            finalScore.textContent = percentage + '%';
+            scoreDisplay.textContent = `Підсумок: ${score}/${questions.length}`;
+
+            // Визначити клас для кольору та текст результату
+            let scoreClass, resultText;
+            if (percentage >= 90) {
+                scoreClass = 'score-excellent';
+                resultText = '🎉 Відмінно! Ви чудово знаєте матеріал!';
+            } else if (percentage >= 70) {
+                scoreClass = 'score-good';
+                resultText = '👍 Добре! Є над чим попрацювати, але результат хороший!';
+            } else if (percentage >= 50) {
+                scoreClass = 'score-fair';
+                resultText = '📚 Задовільно. Варто краще вивчити матеріал.';
+            } else {
+                scoreClass = 'score-poor';
+                resultText = '📖 Потрібно більше попрацювати з матеріалом.';
+            }
+
+            scoreCircle.className = `score-circle ${scoreClass}`;
+            resultsText.textContent = resultText;
+        }
+
+        function restartTest() {
+            currentQuestion = 0;
+            score = 0;
+            userAnswers = [];
+            testCompleted = false;
+
+            document.getElementById('questionContainer').style.display = 'block';
+            document.querySelector('.navigation').style.display = 'flex';
+            document.getElementById('results').classList.remove('show');
+            document.getElementById('scoreDisplay').textContent = 'Бали: 0';
+
+            initTest();
+        }
+
+        function toggleFullscreen() {
+            const container = document.getElementById('testContainer');
+            const btn = document.getElementById('fullscreenBtn');
+            const body = document.body;
+
+            if (container.classList.contains('fullscreen')) {
+                container.classList.remove('fullscreen');
+                body.classList.remove('fullscreen-mode');
+                btn.textContent = '📱 На весь екран';
+            } else {
+                container.classList.add('fullscreen');
+                body.classList.add('fullscreen-mode');
+                btn.textContent = '📱 Звичайний режим';
+            }
+        }
+
+        // Ініціалізація тесту при завантаженні сторінки
+        document.addEventListener('DOMContentLoaded', initTest);
+
+        // Обробка натискання Escape для виходу з повноекранного режиму
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const container = document.getElementById('testContainer');
+                if (container.classList.contains('fullscreen')) {
+                    toggleFullscreen();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

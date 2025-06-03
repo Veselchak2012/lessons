@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Інформаційні системи - Інтерактивна вправа</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: #34495e;
+            font-size: 1.1em;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .score {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            color: #2c3e50;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .fullscreen-btn, .reset-btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .reset-btn {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .fullscreen-btn:hover, .reset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .game-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .drag-items, .drop-zones {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .drag-items h3, .drop-zones h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            font-size: 1.4em;
+            font-weight: 600;
+        }
+
+        .drag-item {
+            background: linear-gradient(45deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 15px 20px;
+            margin: 8px 0;
+            border-radius: 12px;
+            cursor: grab;
+            user-select: none;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(116, 185, 255, 0.3);
+            border: 2px solid transparent;
+        }
+
+        .drag-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(116, 185, 255, 0.4);
+        }
+
+        .drag-item:active {
+            cursor: grabbing;
+            transform: scale(0.98);
+        }
+
+        .drag-item.dragging {
+            opacity: 0.7;
+            transform: rotate(5deg);
+        }
+
+        .drop-zone {
+            min-height: 80px;
+            border: 3px dashed #bdc3c7;
+            border-radius: 12px;
+            margin: 10px 0;
+            padding: 15px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.7);
+            position: relative;
+        }
+
+        .drop-zone:before {
+            content: attr(data-category);
+            position: absolute;
+            top: -12px;
+            left: 15px;
+            background: #34495e;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .drop-zone.drag-over {
+            border-color: #3498db;
+            background: rgba(52, 152, 219, 0.1);
+            transform: scale(1.02);
+        }
+
+        .drop-zone.correct {
+            border-color: #27ae60;
+            background: rgba(39, 174, 96, 0.1);
+        }
+
+        .drop-zone.incorrect {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, 0.1);
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 20%, 40%, 60%, 80% { transform: translateX(0); }
+            10%, 30%, 50%, 70% { transform: translateX(-5px); }
+            15%, 35%, 55%, 75% { transform: translateX(5px); }
+        }
+
+        .dropped-item {
+            background: linear-gradient(45deg, #00b894, #00a085);
+            color: white;
+            padding: 12px 16px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-weight: 500;
+            box-shadow: 0 3px 10px rgba(0, 184, 148, 0.3);
+            animation: dropIn 0.4s ease-out;
+        }
+
+        @keyframes dropIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.8);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .feedback {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: 600;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            margin-top: 20px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .feedback.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .feedback.success {
+            color: #27ae60;
+            border-left: 5px solid #27ae60;
+        }
+
+        .feedback.partial {
+            color: #f39c12;
+            border-left: 5px solid #f39c12;
+        }
+
+        .feedback.error {
+            color: #e74c3c;
+            border-left: 5px solid #e74c3c;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .header p {
+                font-size: 1em;
+            }
+
+            .game-area {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .drag-item {
+                padding: 12px 15px;
+                font-size: 14px;
+            }
+
+            .drop-zone {
+                min-height: 60px;
+                padding: 10px;
+            }
+
+            .fullscreen-btn, .reset-btn {
+                padding: 10px 20px;
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .drag-items, .drop-zones {
+                padding: 15px;
+            }
+
+            .drag-item {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+        }
+
+        /* Fullscreen styles */
+        .fullscreen {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            max-width: none !important;
+            z-index: 9999 !important;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        }
+
+        .fullscreen .container {
+            max-width: none;
+            width: 100%;
+            height: 100vh;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🖥️ Інформаційні системи</h1>
+            <p>Перетягніть елементи до відповідних категорій</p>
+        </div>
+
+        <div class="controls">
+            <div class="score">
+                Правильних відповідей: <span id="score">0</span> з <span id="total">12</span>
+            </div>
+            <div>
+                <button class="fullscreen-btn" onclick="toggleFullscreen()">📺 На весь екран</button>
+                <button class="reset-btn" onclick="resetGame()">🔄 Скинути</button>
+            </div>
+        </div>
+
+        <div class="game-area">
+            <div class="drag-items">
+                <h3>💼 Елементи для розміщення</h3>
+                <div id="dragContainer">
+                    <div class="drag-item" draggable="true" data-category="hardware">Монітор</div>
+                    <div class="drag-item" draggable="true" data-category="hardware">Клавіатура</div>
+                    <div class="drag-item" draggable="true" data-category="hardware">Принтер</div>
+                    <div class="drag-item" draggable="true" data-category="software">Операційна система</div>
+                    <div class="drag-item" draggable="true" data-category="software">Текстовий редактор</div>
+                    <div class="drag-item" draggable="true" data-category="processes">Зберігання інформації</div>
+                    <div class="drag-item" draggable="true" data-category="processes">Опрацювання даних</div>
+                    <div class="drag-item" draggable="true" data-category="processes">Передавання інформації</div>
+                    <div class="drag-item" draggable="true" data-category="storage">Флешнакопичувач</div>
+                    <div class="drag-item" draggable="true" data-category="storage">CD-ROM диск</div>
+                    <div class="drag-item" draggable="true" data-category="storage">SSD-диск</div>
+                    <div class="drag-item" draggable="true" data-category="software">Графічний редактор</div>
+                </div>
+            </div>
+
+            <div class="drop-zones">
+                <h3>📂 Категорії</h3>
+                <div class="drop-zone" data-category="Апаратна складова (Hardware)" data-accepts="hardware"></div>
+                <div class="drop-zone" data-category="Програмна складова (Software)" data-accepts="software"></div>
+                <div class="drop-zone" data-category="Інформаційні процеси" data-accepts="processes"></div>
+                <div class="drop-zone" data-category="Носії інформації" data-accepts="storage"></div>
+            </div>
+        </div>
+
+        <div class="feedback" id="feedback"></div>
+    </div>
+
+    <script>
+        let draggedElement = null;
+        let score = 0;
+        const totalItems = 12;
+
+        // Initialize drag and drop
+        function initDragAndDrop() {
+            const dragItems = document.querySelectorAll('.drag-item');
+            const dropZones = document.querySelectorAll('.drop-zone');
+
+            dragItems.forEach(item => {
+                item.addEventListener('dragstart', handleDragStart);
+                item.addEventListener('dragend', handleDragEnd);
+                
+                // Touch events for mobile
+                item.addEventListener('touchstart', handleTouchStart, {passive: false});
+                item.addEventListener('touchmove', handleTouchMove, {passive: false});
+                item.addEventListener('touchend', handleTouchEnd, {passive: false});
+            });
+
+            dropZones.forEach(zone => {
+                zone.addEventListener('dragover', handleDragOver);
+                zone.addEventListener('drop', handleDrop);
+                zone.addEventListener('dragenter', handleDragEnter);
+                zone.addEventListener('dragleave', handleDragLeave);
+            });
+        }
+
+        function handleDragStart(e) {
+            draggedElement = this;
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragEnd(e) {
+            this.classList.remove('dragging');
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        }
+
+        function handleDragEnter(e) {
+            e.preventDefault();
+            this.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            this.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+            
+            if (draggedElement) {
+                const itemCategory = draggedElement.dataset.category;
+                const zoneAccepts = this.dataset.accepts;
+                
+                if (itemCategory === zoneAccepts) {
+                    // Correct drop
+                    const droppedItem = document.createElement('div');
+                    droppedItem.className = 'dropped-item';
+                    droppedItem.textContent = draggedElement.textContent;
+                    this.appendChild(droppedItem);
+                    
+                    draggedElement.remove();
+                    this.classList.add('correct');
+                    score++;
+                    updateScore();
+                    
+                    if (score === totalItems) {
+                        showFeedback('🎉 Вітаємо! Ви правильно розмістили всі елементи!', 'success');
+                    }
+                } else {
+                    // Incorrect drop
+                    this.classList.add('incorrect');
+                    setTimeout(() => {
+                        this.classList.remove('incorrect');
+                    }, 1000);
+                    
+                    showFeedback('❌ Неправильно! Спробуйте ще раз.', 'error');
+                }
+            }
+        }
+
+        // Touch events for mobile support
+        let touchItem = null;
+        let touchOffset = { x: 0, y: 0 };
+
+        function handleTouchStart(e) {
+            touchItem = this;
+            const touch = e.touches[0];
+            const rect = this.getBoundingClientRect();
+            touchOffset.x = touch.clientX - rect.left;
+            touchOffset.y = touch.clientY - rect.top;
+            
+            this.style.position = 'fixed';
+            this.style.zIndex = '1000';
+            this.style.opacity = '0.8';
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            if (touchItem) {
+                const touch = e.touches[0];
+                touchItem.style.left = (touch.clientX - touchOffset.x) + 'px';
+                touchItem.style.top = (touch.clientY - touchOffset.y) + 'px';
+            }
+        }
+
+        function handleTouchEnd(e) {
+            if (touchItem) {
+                const touch = e.changedTouches[0];
+                const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+                const dropZone = elementBelow?.closest('.drop-zone');
+                
+                if (dropZone) {
+                    const itemCategory = touchItem.dataset.category;
+                    const zoneAccepts = dropZone.dataset.accepts;
+                    
+                    if (itemCategory === zoneAccepts) {
+                        const droppedItem = document.createElement('div');
+                        droppedItem.className = 'dropped-item';
+                        droppedItem.textContent = touchItem.textContent;
+                        dropZone.appendChild(droppedItem);
+                        
+                        touchItem.remove();
+                        dropZone.classList.add('correct');
+                        score++;
+                        updateScore();
+                        
+                        if (score === totalItems) {
+                            showFeedback('🎉 Вітаємо! Ви правильно розмістили всі елементи!', 'success');
+                        }
+                    } else {
+                        dropZone.classList.add('incorrect');
+                        setTimeout(() => {
+                            dropZone.classList.remove('incorrect');
+                        }, 1000);
+                        
+                        showFeedback('❌ Неправильно! Спробуйте ще раз.', 'error');
+                        resetTouchItem();
+                    }
+                } else {
+                    resetTouchItem();
+                }
+                
+                touchItem = null;
+            }
+        }
+
+        function resetTouchItem() {
+            if (touchItem) {
+                touchItem.style.position = '';
+                touchItem.style.zIndex = '';
+                touchItem.style.opacity = '';
+                touchItem.style.left = '';
+                touchItem.style.top = '';
+            }
+        }
+
+        function updateScore() {
+            document.getElementById('score').textContent = score;
+        }
+
+        function showFeedback(message, type) {
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = message;
+            feedback.className = `feedback ${type} show`;
+            
+            setTimeout(() => {
+                feedback.classList.remove('show');
+            }, 3000);
+        }
+
+        function resetGame() {
+            score = 0;
+            updateScore();
+            
+            // Remove all dropped items
+            document.querySelectorAll('.dropped-item').forEach(item => item.remove());
+            
+            // Reset drop zones
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                zone.classList.remove('correct', 'incorrect');
+            });
+            
+            // Recreate drag items
+            const dragContainer = document.getElementById('dragContainer');
+            dragContainer.innerHTML = `
+                <div class="drag-item" draggable="true" data-category="hardware">Монітор</div>
+                <div class="drag-item" draggable="true" data-category="hardware">Клавіатура</div>
+                <div class="drag-item" draggable="true" data-category="hardware">Принтер</div>
+                <div class="drag-item" draggable="true" data-category="software">Операційна система</div>
+                <div class="drag-item" draggable="true" data-category="software">Текстовий редактор</div>
+                <div class="drag-item" draggable="true" data-category="processes">Зберігання інформації</div>
+                <div class="drag-item" draggable="true" data-category="processes">Опрацювання даних</div>
+                <div class="drag-item" draggable="true" data-category="processes">Передавання інформації</div>
+                <div class="drag-item" draggable="true" data-category="storage">Флешнакопичувач</div>
+                <div class="drag-item" draggable="true" data-category="storage">CD-ROM диск</div>
+                <div class="drag-item" draggable="true" data-category="storage">SSD-диск</div>
+                <div class="drag-item" draggable="true" data-category="software">Графічний редактор</div>
+            `;
+            
+            // Reinitialize drag and drop
+            initDragAndDrop();
+            
+            // Hide feedback
+            document.getElementById('feedback').classList.remove('show');
+            
+            showFeedback('🔄 Гру скинуто! Почніть знову.', 'partial');
+        }
+
+        function toggleFullscreen() {
+            const body = document.body;
+            const btn = document.querySelector('.fullscreen-btn');
+            
+            if (body.classList.contains('fullscreen')) {
+                body.classList.remove('fullscreen');
+                btn.textContent = '📺 На весь екран';
+                
+                // For iframe context
+                if (window.parent !== window) {
+                    window.parent.postMessage('exitFullscreen', '*');
+                }
+            } else {
+                body.classList.add('fullscreen');
+                btn.textContent = '📱 Звичайний розмір';
+                
+                // For iframe context
+                if (window.parent !== window) {
+                    window.parent.postMessage('enterFullscreen', '*');
+                }
+            }
+        }
+
+        // Initialize the game
+        document.addEventListener('DOMContentLoaded', function() {
+            initDragAndDrop();
+            updateScore();
+        });
+
+        // Handle messages from parent window (for iframe usage)
+        window.addEventListener('message', function(e) {
+            if (e.data === 'toggleFullscreen') {
+                toggleFullscreen();
+            }
+        });
+    </script>
+</body>
+</html>
