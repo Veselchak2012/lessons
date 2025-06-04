@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ефекти зміни слайдів</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            overflow: hidden;
+        }
+
+        .presentation-container {
+            width: 100%;
+            max-width: 1400px;
+            height: 100vh;
+            margin: 0 auto;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .fullscreen {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            max-width: none !important;
+            z-index: 10000 !important;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .header {
+            padding: 15px 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .fullscreen-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .fullscreen-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .slide-counter {
+            color: white;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .slide-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            margin: 20px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .slide.prev {
+            transform: translateX(-100%);
+        }
+
+        .slide h1 {
+            font-size: 48px;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .slide h2 {
+            font-size: 36px;
+            color: #3498db;
+            margin-bottom: 25px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .slide h3 {
+            font-size: 28px;
+            color: #e74c3c;
+            margin-bottom: 20px;
+        }
+
+        .slide p, .slide li {
+            font-size: 22px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            max-width: 1000px;
+        }
+
+        .slide ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .slide li {
+            background: linear-gradient(90deg, #f8f9fa, #e9ecef);
+            margin: 10px 0;
+            padding: 15px 25px;
+            border-radius: 10px;
+            border-left: 5px solid #3498db;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .slide li:before {
+            content: "✓";
+            color: #27ae60;
+            font-weight: bold;
+            font-size: 20px;
+            margin-right: 10px;
+        }
+
+        .steps-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .step-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            transform: translateY(20px);
+            opacity: 0;
+            animation: slideUp 0.6s ease forwards;
+        }
+
+        .step-card:nth-child(2) { animation-delay: 0.2s; }
+        .step-card:nth-child(3) { animation-delay: 0.4s; }
+        .step-card:nth-child(4) { animation-delay: 0.6s; }
+
+        @keyframes slideUp {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .step-number {
+            background: rgba(255, 255, 255, 0.2);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+
+        .navigation {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 500;
+            color: #2c3e50;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-btn:hover {
+            background: white;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-dots {
+            display: flex;
+            gap: 10px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dot.active {
+            background: white;
+            transform: scale(1.3);
+        }
+
+        .definition-box {
+            background: linear-gradient(135deg, #ffecd2, #fcb69f);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 6px solid #e74c3c;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #a8edea, #fed6e3);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border: 2px solid #ff6b6b;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .summary-card h4 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #ffd700;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header {
+                padding: 10px 15px;
+            }
+
+            .logo {
+                font-size: 20px;
+            }
+
+            .slide {
+                padding: 30px 20px;
+            }
+
+            .slide h1 {
+                font-size: 32px;
+            }
+
+            .slide h2 {
+                font-size: 28px;
+            }
+
+            .slide h3 {
+                font-size: 24px;
+            }
+
+            .slide p, .slide li {
+                font-size: 18px;
+            }
+
+            .steps-container {
+                grid-template-columns: 1fr;
+            }
+
+            .navigation {
+                bottom: 20px;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .nav-btn {
+                padding: 10px 20px;
+                font-size: 16px;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .slide {
+                padding: 20px 15px;
+            }
+
+            .slide h1 {
+                font-size: 28px;
+            }
+
+            .slide h2 {
+                font-size: 24px;
+            }
+
+            .slide h3 {
+                font-size: 20px;
+            }
+
+            .slide p, .slide li {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container" id="presentationContainer">
+        <div class="header">
+            <div class="logo">Інформатика 6 клас</div>
+            <div class="controls">
+                <div class="slide-counter">
+                    <span id="currentSlide">1</span> / <span id="totalSlides">12</span>
+                </div>
+                <button class="fullscreen-btn" onclick="toggleFullscreen()" title="Повний екран">⛶</button>
+            </div>
+        </div>
+
+        <div class="slide-container">
+            <!-- Slide 1: Title -->
+            <div class="slide active">
+                <h1>Ефекти зміни слайдів</h1>
+                <h2>Планування презентації та виступ перед аудиторією</h2>
+                <div class="highlight">
+                    <p>Навчимося створювати красиві переходи між слайдами та планувати ефективні презентації</p>
+                </div>
+            </div>
+
+            <!-- Slide 2: Definition -->
+            <div class="slide">
+                <h2>Що таке ефект зміни слайдів?</h2>
+                <div class="definition-box">
+                    <p><strong>Ефект зміни слайдів</strong> — це візуальний ефект, який відбувається під час переходу від одного слайда до наступного під час презентації.</p>
+                </div>
+                <p>Ви можете:</p>
+                <ul>
+                    <li>Вибрати швидкість переходу</li>
+                    <li>Додати звук до переходу</li>
+                    <li>Налаштувати вигляд ефектів</li>
+                </ul>
+            </div>
+
+            <!-- Slide 3: Where to find -->
+            <div class="slide">
+                <h2>Де знайти налаштування переходів?</h2>
+                <div class="highlight">
+                    <h3>Вкладка "Переходи"</h3>
+                    <p>Параметри переходу між слайдами встановлюються командами, які розташовані на вкладці <strong>Переходи</strong>.</p>
+                </div>
+                <p>Ефект переходу можна встановити:</p>
+                <ul>
+                    <li>Для кожного слайда окремо</li>
+                    <li>Для всіх слайдів одразу (рекомендовано)</li>
+                </ul>
+            </div>
+
+            <!-- Slide 4: Creating transitions -->
+            <div class="slide">
+                <h2>Створення переходів між слайдами</h2>
+                <div class="steps-container">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <h4>Виберіть слайд</h4>
+                        <p>Оберіть слайд, до якого потрібно додати перехід</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <h4>Оберіть ефект</h4>
+                        <p>Перейдіть на вкладку "Переходи" та виберіть потрібний перехід</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <h4>Налаштуйте параметри</h4>
+                        <p>Клацніть "Параметри ефекту" та оберіть напрямок і характер</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">4</div>
+                        <h4>Перегляньте результат</h4>
+                        <p>Натисніть "Переглянути" для перевірки ефекту</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 5: Apply to all -->
+            <div class="slide">
+                <h2>Застосування до всіх слайдів</h2>
+                <div class="highlight">
+                    <h3>Кнопка "Застосувати до всіх"</h3>
+                    <p>Натисніть цю кнопку, щоб додати обраний перехід до всієї презентації</p>
+                </div>
+                <div class="definition-box">
+                    <p><strong>Важливо:</strong> Одночасно до слайда можна застосувати лише один ефект переходу.</p>
+                </div>
+            </div>
+
+            <!-- Slide 6: Removing transitions -->
+            <div class="slide">
+                <h2>Видалення переходів</h2>
+                <div class="steps-container">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <h4>Виберіть слайд</h4>
+                        <p>Оберіть слайд із переходом, який потрібно видалити</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <h4>Оберіть "Немає"</h4>
+                        <p>На вкладці "Переходи" виберіть варіант "Немає"</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <h4>Для всіх слайдів</h4>
+                        <p>Для видалення всіх переходів натисніть "Застосувати до всіх"</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 7: Time settings -->
+            <div class="slide">
+                <h2>Налаштування часу переходів</h2>
+                <ul>
+                    <li>Встановити звук для відтворення під час переходу</li>
+                    <li>Визначити тривалість переходу</li>
+                    <li>Застосувати параметри для всіх слайдів</li>
+                    <li>Активувати автоматичний перехід</li>
+                    <li>Встановити перехід по кліку миші</li>
+                </ul>
+            </div>
+
+            <!-- Slide 8: Duration -->
+            <div class="slide">
+                <h2>Швидкість переходів</h2>
+                <div class="definition-box">
+                    <p>Для встановлення швидкості переходу використовуйте параметр <strong>"Тривалість"</strong></p>
+                </div>
+                <div class="steps-container">
+                    <div class="step-card">
+                        <div class="step-number">⚡</div>
+                        <h4>Коротша тривалість</h4>
+                        <p>Швидкий перехід між слайдами</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">🐌</div>
+                        <h4>Більша тривалість</h4>
+                        <p>Повільний перехід між слайдами</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 9: Presentation structure -->
+            <div class="slide">
+                <h2>Структура презентації</h2>
+                <div class="steps-container">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <h4>Титульний слайд</h4>
+                        <p>Презентація починається з титульного слайда</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <h4>Логічна послідовність</h4>
+                        <p>Матеріали розміщують в хронологічній або логічній послідовності</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <h4>Заголовки слайдів</h4>
+                        <p>Кожен слайд повинен містити заголовок з основною ідеєю</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 10: Presentation rules -->
+            <div class="slide">
+                <h2>Правила ефективної презентації</h2>
+                <ul>
+                    <li>Не намагайся презентацією замінити себе</li>
+                    <li>Одна думка = один слайд</li>
+                    <li>Підкріплюй, а не повторюй</li>
+                    <li>Не варто читати з слайдів презентації</li>
+                    <li>Більше зображень — менше тексту</li>
+                </ul>
+            </div>
+
+            <!-- Slide 11: Four P's -->
+            <div class="slide">
+                <h2>Чотири етапи презентації — чотири "П"</h2>
+                <div class="steps-container">
+                    <div class="step-card">
+                        <div class="step-number">П</div>
+                        <h4>Планування</h4>
+                        <p>Визначення цілей та структури</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">П</div>
+                        <h4>Підготовка</h4>
+                        <p>Створення контенту та матеріалів</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">П</div>
+                        <h4>Практика</h4>
+                        <p>Репетиція та відпрацювання</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">П</div>
+                        <h4>Презентація</h4>
+                        <p>Виступ перед аудиторією</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 12: Summary -->
+            <div class="slide">
+                <h1>Підсумок</h1>
+                <div class="summary-grid">
+                    <div class="summary-card">
+                        <h4>Ефекти переходів</h4>
+                        <p>Створюють візуальну привабливість та плавність презентації</p>
+                    </div>
+                    <div class="summary-card">
+                        <h4>Налаштування</h4>
+                        <p>Швидкість, звук та параметри ефектів</p>
+                    </div>
+                    <div class="summary-card">
+                        <h4>Структура</h4>
+                        <p>Логічна послідовність та зрозумілі заголовки</p>
+                    </div>
+                    <div class="summary-card">
+                        <h4>Виступ</h4>
+                        <p>Планування, підготовка, практика та презентація</p>
+                    </div>
+                </div>
+                <div class="highlight">
+                    <p>Пам'ятайте: ефективна презентація — це поєднання технічних можливостей та вміння спілкуватися з аудиторією!</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button class="nav-btn" onclick="previousSlide()" id="prevBtn">← Назад</button>
+            <div class="slide-dots" id="slideDots"></div>
+            <button class="nav-btn" onclick="nextSlide()" id="nextBtn">Далі →</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        // Initialize
+        document.getElementById('totalSlides').textContent = totalSlides;
+        createDots();
+        updateSlideCounter();
+        updateNavButtons();
+
+        function createDots() {
+            const dotsContainer = document.getElementById('slideDots');
+            for (let i = 0; i < totalSlides; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'dot';
+                if (i === 0) dot.classList.add('active');
+                dot.onclick = () => goToSlide(i);
+                dotsContainer.appendChild(dot);
+            }
+        }
+
+        function updateSlideCounter() {
+            document.getElementById('currentSlide').textContent = currentSlideIndex + 1;
+        }
+
+        function updateNavButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            prevBtn.disabled = currentSlideIndex === 0;
+            nextBtn.disabled = currentSlideIndex === totalSlides - 1;
+        }
+
+        function updateDots() {
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSlideIndex);
+            });
+        }
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active', 'prev');
+                if (i === index) {
+                    slide.classList.add('active');
+                } else if (i < index) {
+                    slide.classList.add('prev');
+                }
+            });
+            
+            updateSlideCounter();
+            updateNavButtons();
+            updateDots();
+        }
+
+        function nextSlide() {
+            if (currentSlideIndex < totalSlides - 1) {
+                currentSlideIndex++;
+                showSlide(currentSlideIndex);
+            }
+        }
+
+        function previousSlide() {
+            if (currentSlideIndex > 0) {
+                currentSlideIndex--;
+                showSlide(currentSlideIndex);
+            }
+        }
+
+        function goToSlide(index) {
+            currentSlideIndex = index;
+            showSlide(currentSlideIndex);
+        }
+
+        function toggleFullscreen() {
+            const container = document.getElementById('presentationContainer');
+            
+            if (!document.fullscreenElement) {
+                // Enter fullscreen
+                if (container.requestFullscreen) {
+                    container.requestFullscreen();
+                } else if (container.webkitRequestFullscreen) {
+                    container.webkitRequestFullscreen();
+                } else if (container.msRequestFullscreen) {
+                    container.msRequestFullscreen();
+                } else {
+                    // Fallback for iframe
+                    container.classList.add('fullscreen');
+                }
+            } else {
+                // Exit fullscreen
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                } else {
+                    // Fallback for iframe
+                    container.classList.remove('fullscreen');
+                }
+            }
+        }
+
+        // Handle fullscreen change events
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+        document.addEventListener('msfullscreenchange', handleFullscreenChange);
+
+        function handleFullscreenChange() {
+            const container = document.getElementById('presentationContainer');
+            if (!document.fullscreenElement) {
+                container.classList.remove('fullscreen');
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowRight':
+                case ' ':
+                    e.preventDefault();
+                    nextSlide();
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    previousSlide();
+                    break;
+                case 'Home':
+                    e.preventDefault();
+                    goToSlide(0);
+                    break;
+                case 'End':
+                    e.preventDefault();
+                    goToSlide(totalSlides - 1);
+                    break;
+                case 'F11':
+                case 'f':
+                    e.preventDefault();
+                    toggleFullscreen();
+                    break;
+                case 'Escape':
+                    if (document.fullscreenElement) {
+                        e.preventDefault();
+                        toggleFullscreen();
+                    }
+                    break;
+            }
+        });
+
+        // Touch/swipe support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+            
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0) {
+                    // Swipe left - next slide
+                    nextSlide();
+                } else {
+                    // Swipe right - previous slide
+                    previousSlide();
+                }
+            }
+        }
+
+        // Auto-resize animations on window resize
+        window.addEventListener('resize', () => {
+            // Trigger reflow for animations
+            slides[currentSlideIndex].style.animation = 'none';
+            slides[currentSlideIndex].offsetHeight; // Trigger reflow
+            slides[currentSlideIndex].style.animation = null;
+        });
+    </script>
+</body>
+</html>

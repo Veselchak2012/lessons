@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест: Презентації та анімація</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        .quiz-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .quiz-header {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .fullscreen-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .fullscreen-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .quiz-title {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .quiz-subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .quiz-content {
+            padding: 40px;
+        }
+
+        .question-container {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .question-container.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question-number {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .question-text {
+            font-size: 1.3em;
+            margin-bottom: 30px;
+            color: #2d3748;
+            font-weight: 500;
+            line-height: 1.5;
+        }
+
+        .options {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .option {
+            background: #f8fafc;
+            border: 3px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option:hover {
+            border-color: #4f46e5;
+            background: #f0f4ff;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.1);
+        }
+
+        .option.selected {
+            border-color: #4f46e5;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+        }
+
+        .option.correct {
+            border-color: #059669;
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: white;
+        }
+
+        .option.incorrect {
+            border-color: #dc2626;
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            color: white;
+        }
+
+        .option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .option:hover::before {
+            left: 100%;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+        }
+
+        .btn:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .progress-container {
+            background: #e2e8f0;
+            border-radius: 25px;
+            height: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            height: 100%;
+            border-radius: 25px;
+            transition: width 0.5s ease;
+            box-shadow: 0 2px 10px rgba(79, 70, 229, 0.3);
+        }
+
+        .results {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .results.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            font-weight: bold;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .score-excellent {
+            background: linear-gradient(135deg, #059669, #10b981);
+        }
+
+        .score-good {
+            background: linear-gradient(135deg, #d97706, #f59e0b);
+        }
+
+        .score-needs-improvement {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+        }
+
+        .results-text {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #2d3748;
+        }
+
+        .restart-btn {
+            background: linear-gradient(135deg, #059669, #10b981);
+            margin-top: 20px;
+        }
+
+        /* Мобільна адаптивність */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+                font-size: 16px;
+            }
+
+            .quiz-header {
+                padding: 20px;
+            }
+
+            .quiz-title {
+                font-size: 1.8em;
+            }
+
+            .quiz-subtitle {
+                font-size: 1em;
+            }
+
+            .quiz-content {
+                padding: 20px;
+            }
+
+            .question-text {
+                font-size: 1.1em;
+            }
+
+            .option {
+                padding: 15px;
+                font-size: 1em;
+            }
+
+            .btn {
+                padding: 12px 24px;
+                font-size: 1em;
+            }
+
+            .fullscreen-btn {
+                padding: 8px 15px;
+                font-size: 14px;
+            }
+
+            .score-circle {
+                width: 150px;
+                height: 150px;
+                font-size: 2.5em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navigation {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .quiz-title {
+                font-size: 1.5em;
+            }
+
+            .question-text {
+                font-size: 1em;
+            }
+        }
+
+        /* Повноекранний режим */
+        .fullscreen {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            max-width: none !important;
+            z-index: 10000 !important;
+            border-radius: 0 !important;
+        }
+
+        .fullscreen body {
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container" id="quizContainer">
+        <div class="quiz-header">
+            <button class="fullscreen-btn" id="fullscreenBtn" onclick="toggleFullscreen()">
+                📱 Повний екран
+            </button>
+            <h1 class="quiz-title">Тест з презентацій</h1>
+            <p class="quiz-subtitle">Анімація, режим доповідача та керування презентацією</p>
+        </div>
+
+        <div class="quiz-content">
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+
+            <!-- Питання 1 -->
+            <div class="question-container active" data-question="1">
+                <div class="question-number">Питання 1 з 10</div>
+                <div class="question-text">Які клавіші потрібно натиснути, щоб почати показ слайдів з поточного слайда?</div>
+                <div class="options">
+                    <div class="option" data-answer="F5">F5</div>
+                    <div class="option" data-answer="Shift+F5">Shift+F5</div>
+                    <div class="option" data-answer="Ctrl+F5">Ctrl+F5</div>
+                    <div class="option" data-answer="Alt+F5">Alt+F5</div>
+                </div>
+            </div>
+
+            <!-- Питання 2 -->
+            <div class="question-container" data-question="2">
+                <div class="question-number">Питання 2 з 10</div>
+                <div class="question-text">Що таке нотатки доповідача?</div>
+                <div class="options">
+                    <div class="option" data-answer="Текст на слайді">Текст, який відображається на слайді для всіх глядачів</div>
+                    <div class="option" data-answer="Поле під слайдом">Поле під кожним слайдом, яке бачить лише доповідач</div>
+                    <div class="option" data-answer="Заголовок презентації">Заголовок презентації</div>
+                    <div class="option" data-answer="Анімація слайдів">Ефекти анімації між слайдами</div>
+                </div>
+            </div>
+
+            <!-- Питання 3 -->
+            <div class="question-container" data-question="3">
+                <div class="question-text">Що дозволяє зробити режим доповідача?</div>
+                <div class="options">
+                    <div class="option" data-answer="Змінити слайди">Змінювати слайди в довільному порядку</div>
+                    <div class="option" data-answer="Показувати нотатки">Показувати нотатки доповідача великим шрифтом</div>
+                    <div class="option" data-answer="Використовувати ескізи">Використовувати ескізи для швидкого переходу</div>
+                    <div class="option" data-answer="Всі перелічені">Всі перелічені можливості</div>
+                </div>
+            </div>
+
+            <!-- Питання 4 -->
+            <div class="question-container" data-question="4">
+                <div class="question-number">Питання 4 з 10</div>
+                <div class="question-text">Що таке анімація в презентації?</div>
+                <div class="options">
+                    <div class="option" data-answer="Динамічний ефект">Динамічний візуальний ефект, доданий до об'єкта слайда</div>
+                    <div class="option" data-answer="Перехід між слайдами">Перехід між слайдами презентації</div>
+                    <div class="option" data-answer="Звуковий ефект">Звуковий ефект у презентації</div>
+                    <div class="option" data-answer="Фон слайда">Зміна фону слайда</div>
+                </div>
+            </div>
+
+            <!-- Питання 5 -->
+            <div class="question-container" data-question="5">
+                <div class="question-number">Питання 5 з 10</div>
+                <div class="question-text">Як можна запустити анімацію?</div>
+                <div class="options">
+                    <div class="option" data-answer="По клацанню">По клацанню миші</div>
+                    <div class="option" data-answer="Після попереднього">Після попереднього ефекту</div>
+                    <div class="option" data-answer="З попереднім">Одночасно з попереднім ефектом</div>
+                    <div class="option" data-answer="Всі способи">Всі перелічені способи</div>
+                </div>
+            </div>
+
+            <!-- Питання 6 -->
+            <div class="question-container" data-question="6">
+                <div class="question-number">Питання 6 з 10</div>
+                <div class="question-text">Що дозволяють налаштувати шляхи переміщення?</div>
+                <div class="options">
+                    <div class="option" data-answer="Рух об'єктів">Переміщення об'єктів слайда по заданій траєкторії</div>
+                    <div class="option" data-answer="Зміну кольору">Зміну кольору об'єктів</div>
+                    <div class="option" data-answer="Розмір тексту">Зміну розміру тексту</div>
+                    <div class="option" data-answer="Фон слайда">Зміну фону слайда</div>
+                </div>
+            </div>
+
+            <!-- Питання 7 -->
+            <div class="question-container" data-question="7">
+                <div class="question-number">Питання 7 з 10</div>
+                <div class="question-text">Що таке групування об'єктів?</div>
+                <div class="options">
+                    <div class="option" data-answer="Об'єднання в групу">Об'єднання об'єктів у одну групу для спільних дій</div>
+                    <div class="option" data-answer="Розділення об'єктів">Розділення об'єктів на частини</div>
+                    <div class="option" data-answer="Копіювання об'єктів">Копіювання об'єктів</div>
+                    <div class="option" data-answer="Видалення об'єктів">Видалення об'єктів зі слайда</div>
+                </div>
+            </div>
+
+            <!-- Питання 8 -->
+            <div class="question-container" data-question="8">
+                <div class="question-number">Питання 8 з 10</div>
+                <div class="question-text">Яка клавіша дозволяє вимкнути перо або лазерний вказівник під час презентації?</div>
+                <div class="options">
+                    <div class="option" data-answer="Esc">Esc</div>
+                    <div class="option" data-answer="Enter">Enter</div>
+                    <div class="option" data-answer="Space">Пробіл</div>
+                    <div class="option" data-answer="Tab">Tab</div>
+                </div>
+            </div>
+
+            <!-- Питання 9 -->
+            <div class="question-container" data-question="9">
+                <div class="question-number">Питання 9 з 10</div>
+                <div class="question-text">Для чого використовується репетиція презентації?</div>
+                <div class="options">
+                    <div class="option" data-answer="Записування часу">Записування часу показу кожного слайда</div>
+                    <div class="option" data-answer="Додавання звуку">Додавання звукових ефектів</div>
+                    <div class="option" data-answer="Зміна дизайну">Зміна дизайну слайдів</div>
+                    <div class="option" data-answer="Створення копії">Створення копії презентації</div>
+                </div>
+            </div>
+
+            <!-- Питання 10 -->
+            <div class="question-container" data-question="10">
+                <div class="question-number">Питання 10 з 10</div>
+                <div class="question-text">Яка клавіша утримується для вибору декількох об'єктів для групування?</div>
+                <div class="options">
+                    <div class="option" data-answer="Ctrl">Ctrl</div>
+                    <div class="option" data-answer="Shift">Shift</div>
+                    <div class="option" data-answer="Alt">Alt</div>
+                    <div class="option" data-answer="Tab">Tab</div>
+                </div>
+            </div>
+
+            <!-- Результати -->
+            <div class="results" id="results">
+                <div class="score-circle" id="scoreCircle">
+                    <span id="scoreText">0/10</span>
+                </div>
+                <div class="results-text" id="resultsText"></div>
+                <button class="btn restart-btn" onclick="restartQuiz()">Пройти тест ще раз</button>
+            </div>
+
+            <div class="navigation">
+                <button class="btn" id="prevBtn" onclick="previousQuestion()" disabled>Попереднє</button>
+                <button class="btn" id="nextBtn" onclick="nextQuestion()">Наступне</button>
+                <button class="btn" id="finishBtn" onclick="finishQuiz()" style="display: none;">Завершити тест</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = document.querySelectorAll('.question-container');
+        const totalQuestions = questions.length;
+        let currentQuestion = 0;
+        let selectedAnswers = [];
+        let correctAnswers = [
+            'Shift+F5',
+            'Поле під слайдом',
+            'Всі перелічені',
+            'Динамічний ефект',
+            'Всі способи',
+            'Рух об\'єктів',
+            'Об\'єднання в групу',
+            'Esc',
+            'Записування часу',
+            'Ctrl'
+        ];
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / totalQuestions) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function showQuestion(index) {
+            questions.forEach((q, i) => {
+                q.classList.toggle('active', i === index);
+            });
+            
+            document.getElementById('prevBtn').disabled = index === 0;
+            
+            if (index === totalQuestions - 1) {
+                document.getElementById('nextBtn').style.display = 'none';
+                document.getElementById('finishBtn').style.display = 'inline-block';
+            } else {
+                document.getElementById('nextBtn').style.display = 'inline-block';
+                document.getElementById('finishBtn').style.display = 'none';
+            }
+            
+            updateProgress();
+        }
+
+        function selectOption(element, questionIndex) {
+            const options = element.parentNode.querySelectorAll('.option');
+            options.forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedAnswers[questionIndex] = element.getAttribute('data-answer');
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < totalQuestions - 1) {
+                currentQuestion++;
+                showQuestion(currentQuestion);
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion(currentQuestion);
+            }
+        }
+
+        function finishQuiz() {
+            let score = 0;
+            
+            questions.forEach((question, index) => {
+                const options = question.querySelectorAll('.option');
+                const correctAnswer = correctAnswers[index];
+                const userAnswer = selectedAnswers[index];
+                
+                options.forEach(option => {
+                    const answerText = option.getAttribute('data-answer');
+                    if (answerText === correctAnswer) {
+                        option.classList.add('correct');
+                    } else if (answerText === userAnswer && answerText !== correctAnswer) {
+                        option.classList.add('incorrect');
+                    }
+                });
+                
+                if (userAnswer === correctAnswer) {
+                    score++;
+                }
+            });
+            
+            showResults(score);
+        }
+
+        function showResults(score) {
+            questions.forEach(q => q.style.display = 'none');
+            document.querySelector('.navigation').style.display = 'none';
+            
+            const results = document.getElementById('results');
+            const scoreCircle = document.getElementById('scoreCircle');
+            const scoreText = document.getElementById('scoreText');
+            const resultsText = document.getElementById('resultsText');
+            
+            scoreText.textContent = score + '/' + totalQuestions;
+            
+            let message, className;
+            if (score >= 8) {
+                message = 'Відмінно! Ви чудово засвоїли матеріал!';
+                className = 'score-excellent';
+            } else if (score >= 6) {
+                message = 'Добре! Але є над чим попрацювати.';
+                className = 'score-good';
+            } else {
+                message = 'Потрібно краще вивчити матеріал.';
+                className = 'score-needs-improvement';
+            }
+            
+            scoreCircle.className = 'score-circle ' + className;
+            resultsText.textContent = message;
+            results.classList.add('active');
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            selectedAnswers = [];
+            
+            questions.forEach(question => {
+                question.style.display = 'block';
+                const options = question.querySelectorAll('.option');
+                options.forEach(option => {
+                    option.classList.remove('selected', 'correct', 'incorrect');
+                });
+            });
+            
+            document.getElementById('results').classList.remove('active');
+            document.querySelector('.navigation').style.display = 'flex';
+            showQuestion(0);
+        }
+
+        function toggleFullscreen() {
+            const container = document.getElementById('quizContainer');
+            const btn = document.getElementById('fullscreenBtn');
+            
+            if (container.classList.contains('fullscreen')) {
+                container.classList.remove('fullscreen');
+                btn.textContent = '📱 Повний екран';
+                document.body.style.overflow = 'auto';
+            } else {
+                container.classList.add('fullscreen');
+                btn.textContent = '📱 Вийти з повного екрану';
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        // Додавання обробників кліків для варіантів відповідей
+        document.addEventListener('DOMContentLoaded', function() {
+            questions.forEach((question, questionIndex) => {
+                const options = question.querySelectorAll('.option');
+                options.forEach(option => {
+                    option.addEventListener('click', function() {
+                        selectOption(this, questionIndex);
+                    });
+                });
+            });
+            
+            updateProgress();
+        });
+
+        // Обробка клавіатурних скорочень
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' || e.key === 'Space') {
+                e.preventDefault();
+                if (currentQuestion < totalQuestions - 1) {
+                    nextQuestion();
+                }
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                if (currentQuestion > 0) {
+                    previousQuestion();
+                }
+            } else if (e.key === 'F11') {
+                e.preventDefault();
+                toggleFullscreen();
+            }
+        });
+    </script>
+</body>
+</html>

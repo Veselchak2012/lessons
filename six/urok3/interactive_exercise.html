@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Створення презентації - Інтерактивна вправа</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            font-size: 18px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .fullscreen-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .fullscreen-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.5);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .title {
+            font-size: 36px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #00d4ff, #ff0080, #00ff80);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+        }
+
+        .subtitle {
+            font-size: 20px;
+            color: #b3b3ff;
+            margin-bottom: 30px;
+        }
+
+        .exercise-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .task-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 25px;
+            color: #00d4ff;
+            text-align: center;
+            text-shadow: 0 0 15px rgba(0, 212, 255, 0.7);
+        }
+
+        .draggable-items {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .draggable-item {
+            background: linear-gradient(45deg, #ff0080, #ff6600);
+            padding: 20px;
+            border-radius: 15px;
+            cursor: grab;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(255, 0, 128, 0.3);
+            user-select: none;
+        }
+
+        .draggable-item:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(255, 0, 128, 0.5);
+            border-color: #fff;
+        }
+
+        .draggable-item:active {
+            cursor: grabbing;
+            transform: rotate(5deg);
+        }
+
+        .drop-zones {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .drop-zone {
+            min-height: 80px;
+            border: 3px dashed rgba(0, 212, 255, 0.5);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            background: rgba(0, 212, 255, 0.1);
+            position: relative;
+            font-size: 18px;
+            color: #b3b3ff;
+        }
+
+        .drop-zone.drag-over {
+            border-color: #00ff80;
+            background: rgba(0, 255, 128, 0.2);
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 128, 0.5);
+        }
+
+        .drop-zone.filled {
+            border-color: #00ff80;
+            background: rgba(0, 255, 128, 0.2);
+        }
+
+        .step-number {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .controls {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #00ff80, #00cc66);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            margin: 0 10px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 255, 128, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 255, 128, 0.5);
+        }
+
+        .btn-reset {
+            background: linear-gradient(45deg, #ff6600, #ff3300);
+            box-shadow: 0 4px 15px rgba(255, 102, 0, 0.3);
+        }
+
+        .btn-reset:hover {
+            box-shadow: 0 6px 20px rgba(255, 102, 0, 0.5);
+        }
+
+        .feedback {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 20px;
+            font-weight: bold;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .feedback.success {
+            background: rgba(0, 255, 128, 0.2);
+            border: 2px solid #00ff80;
+            color: #00ff80;
+            text-shadow: 0 0 10px rgba(0, 255, 128, 0.7);
+        }
+
+        .feedback.error {
+            background: rgba(255, 0, 128, 0.2);
+            border: 2px solid #ff0080;
+            color: #ff0080;
+            text-shadow: 0 0 10px rgba(255, 0, 128, 0.7);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #00d4ff, #00ff80);
+            width: 0%;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        /* Fullscreen styles */
+        .fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 9999;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            overflow-y: auto;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .title {
+                font-size: 28px;
+            }
+
+            .subtitle {
+                font-size: 18px;
+            }
+
+            .exercise-container {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .task-section {
+                padding: 20px;
+            }
+
+            .section-title {
+                font-size: 20px;
+            }
+
+            .draggable-item {
+                padding: 15px;
+                font-size: 16px;
+            }
+
+            .btn {
+                padding: 12px 25px;
+                font-size: 16px;
+                margin: 5px;
+            }
+
+            .fullscreen-btn {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                font-size: 16px;
+            }
+
+            .title {
+                font-size: 24px;
+            }
+
+            .task-section {
+                padding: 15px;
+            }
+
+            .draggable-item {
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            .section-title {
+                font-size: 18px;
+            }
+        }
+
+        /* Animation keyframes */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="container">
+        <button class="fullscreen-btn" onclick="toggleFullscreen()">📱 Повний екран</button>
+        
+        <div class="header">
+            <h1 class="title">Створення презентації</h1>
+            <p class="subtitle">Розставте кроки створення переходів між слайдами у правильній послідовності</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <div class="exercise-container">
+            <div class="task-section">
+                <h2 class="section-title">🎯 Кроки створення</h2>
+                <div class="draggable-items" id="draggableItems">
+                    <div class="draggable-item" draggable="true" data-step="1">
+                        Виберіть слайд, до якого потрібно додати перехід
+                    </div>
+                    <div class="draggable-item" draggable="true" data-step="2">
+                        Перейдіть на вкладку "Переходи" та виберіть перехід
+                    </div>
+                    <div class="draggable-item" draggable="true" data-step="3">
+                        Клацніть "Параметри ефекту" та виберіть напрямок
+                    </div>
+                    <div class="draggable-item" draggable="true" data-step="4">
+                        Натисніть кнопку "Переглянути" для перевірки
+                    </div>
+                    <div class="draggable-item" draggable="true" data-step="5">
+                        Натисніть "Застосувати до всіх" для всієї презентації
+                    </div>
+                </div>
+            </div>
+
+            <div class="task-section">
+                <h2 class="section-title">📋 Правильна послідовність</h2>
+                <div class="drop-zones" id="dropZones">
+                    <div class="drop-zone" data-target="1">
+                        <span class="step-number">1</span>
+                        <span>Перетягніть перший крок сюди</span>
+                    </div>
+                    <div class="drop-zone" data-target="2">
+                        <span class="step-number">2</span>
+                        <span>Перетягніть другий крок сюди</span>
+                    </div>
+                    <div class="drop-zone" data-target="3">
+                        <span class="step-number">3</span>
+                        <span>Перетягніть третій крок сюди</span>
+                    </div>
+                    <div class="drop-zone" data-target="4">
+                        <span class="step-number">4</span>
+                        <span>Перетягніть четвертий крок сюди</span>
+                    </div>
+                    <div class="drop-zone" data-target="5">
+                        <span class="step-number">5</span>
+                        <span>Перетягніть п'ятий крок сюди</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" onclick="checkAnswer()">✅ Перевірити</button>
+            <button class="btn btn-reset" onclick="resetExercise()">🔄 Почати заново</button>
+        </div>
+
+        <div class="feedback" id="feedback"></div>
+    </div>
+
+    <script>
+        let draggedElement = null;
+        let completedSteps = 0;
+        let isFullscreen = false;
+
+        // Initialize drag and drop functionality
+        function initDragAndDrop() {
+            const draggableItems = document.querySelectorAll('.draggable-item');
+            const dropZones = document.querySelectorAll('.drop-zone');
+
+            draggableItems.forEach(item => {
+                item.addEventListener('dragstart', handleDragStart);
+                item.addEventListener('dragend', handleDragEnd);
+            });
+
+            dropZones.forEach(zone => {
+                zone.addEventListener('dragover', handleDragOver);
+                zone.addEventListener('dragenter', handleDragEnter);
+                zone.addEventListener('dragleave', handleDragLeave);
+                zone.addEventListener('drop', handleDrop);
+            });
+        }
+
+        function handleDragStart(e) {
+            draggedElement = this;
+            this.style.opacity = '0.5';
+            this.classList.add('pulse');
+        }
+
+        function handleDragEnd(e) {
+            this.style.opacity = '1';
+            this.classList.remove('pulse');
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+        }
+
+        function handleDragEnter(e) {
+            e.preventDefault();
+            this.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            this.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+
+            if (draggedElement && !this.querySelector('.draggable-item')) {
+                const clone = draggedElement.cloneNode(true);
+                clone.draggable = false;
+                clone.style.background = 'linear-gradient(45deg, #00ff80, #00cc66)';
+                clone.style.cursor = 'default';
+                
+                this.innerHTML = '';
+                this.appendChild(clone);
+                this.classList.add('filled');
+                
+                draggedElement.style.display = 'none';
+                updateProgress();
+            }
+        }
+
+        function updateProgress() {
+            const filledZones = document.querySelectorAll('.drop-zone.filled').length;
+            const progress = (filledZones / 5) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function checkAnswer() {
+            const dropZones = document.querySelectorAll('.drop-zone');
+            let correct = 0;
+            let total = dropZones.length;
+
+            dropZones.forEach(zone => {
+                const targetStep = zone.getAttribute('data-target');
+                const droppedItem = zone.querySelector('.draggable-item');
+                
+                if (droppedItem) {
+                    const itemStep = droppedItem.getAttribute('data-step');
+                    if (targetStep === itemStep) {
+                        correct++;
+                        zone.style.border = '3px solid #00ff80';
+                        zone.style.boxShadow = '0 0 20px rgba(0, 255, 128, 0.7)';
+                    } else {
+                        zone.style.border = '3px solid #ff0080';
+                        zone.style.boxShadow = '0 0 20px rgba(255, 0, 128, 0.7)';
+                        zone.classList.add('shake');
+                        setTimeout(() => zone.classList.remove('shake'), 500);
+                    }
+                }
+            });
+
+            const feedback = document.getElementById('feedback');
+            
+            if (correct === total) {
+                feedback.textContent = '🎉 Відмінно! Ви правильно розставили всі кроки створення переходів між слайдами!';
+                feedback.className = 'feedback success';
+                celebrateSuccess();
+            } else {
+                feedback.textContent = `❌ Правильно: ${correct} з ${total}. Спробуйте ще раз!`;
+                feedback.className = 'feedback error';
+            }
+        }
+
+        function celebrateSuccess() {
+            // Add celebration animation
+            const container = document.getElementById('container');
+            container.style.animation = 'pulse 1s ease-in-out';
+            setTimeout(() => {
+                container.style.animation = '';
+            }, 1000);
+        }
+
+        function resetExercise() {
+            // Reset all zones
+            const dropZones = document.querySelectorAll('.drop-zone');
+            dropZones.forEach(zone => {
+                zone.innerHTML = `
+                    <span class="step-number">${zone.getAttribute('data-target')}</span>
+                    <span>Перетягніть ${getStepText(zone.getAttribute('data-target'))} крок сюди</span>
+                `;
+                zone.classList.remove('filled');
+                zone.style.border = '3px dashed rgba(0, 212, 255, 0.5)';
+                zone.style.boxShadow = '';
+            });
+
+            // Show all draggable items
+            const draggableItems = document.querySelectorAll('.draggable-item');
+            draggableItems.forEach(item => {
+                item.style.display = 'block';
+            });
+
+            // Clear feedback
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('feedback').className = 'feedback';
+
+            // Reset progress
+            document.getElementById('progressFill').style.width = '0%';
+        }
+
+        function getStepText(step) {
+            const stepTexts = {
+                '1': 'перший',
+                '2': 'другий', 
+                '3': 'третій',
+                '4': 'четвертий',
+                '5': "п'ятий"
+            };
+            return stepTexts[step] || step;
+        }
+
+        function toggleFullscreen() {
+            const container = document.getElementById('container');
+            const button = document.querySelector('.fullscreen-btn');
+            
+            if (!isFullscreen) {
+                container.classList.add('fullscreen');
+                button.textContent = '🔙 Вийти з повного екрану';
+                isFullscreen = true;
+                
+                // For iframe context, try to request fullscreen on the parent
+                if (parent && parent.document) {
+                    try {
+                        const iframe = parent.document.querySelector('iframe');
+                        if (iframe && iframe.requestFullscreen) {
+                            iframe.requestFullscreen();
+                        }
+                    } catch(e) {
+                        console.log('Cannot access parent iframe');
+                    }
+                }
+            } else {
+                container.classList.remove('fullscreen');
+                button.textContent = '📱 Повний екран';
+                isFullscreen = false;
+                
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        // Handle escape key for fullscreen
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && isFullscreen) {
+                toggleFullscreen();
+            }
+        });
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initDragAndDrop();
+        });
+
+        // Handle fullscreen change events
+        document.addEventListener('fullscreenchange', function() {
+            if (!document.fullscreenElement && isFullscreen) {
+                toggleFullscreen();
+            }
+        });
+    </script>
+</body>
+</html>

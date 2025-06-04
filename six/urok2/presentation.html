@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Анімація та ефекти в презентаціях</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+        }
+
+        .presentation-container {
+            width: 100%;
+            max-width: 1400px;
+            height: 100vh;
+            margin: 0 auto;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .presentation-header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .presentation-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: #2196F3;
+        }
+
+        .btn-fullscreen {
+            background: #FF9800;
+        }
+
+        .slide-counter {
+            font-size: 18px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .slide-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        .slide {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 40px;
+            width: 100%;
+            max-width: 1200px;
+            min-height: 600px;
+            display: none;
+            animation: slideIn 0.5s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .slide h1 {
+            font-size: 36px;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .slide h2 {
+            font-size: 28px;
+            color: #34495e;
+            margin-bottom: 25px;
+            border-left: 4px solid #3498db;
+            padding-left: 20px;
+        }
+
+        .slide h3 {
+            font-size: 24px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .slide p, .slide li {
+            font-size: 20px;
+            line-height: 1.6;
+            color: #444;
+            margin-bottom: 15px;
+        }
+
+        .slide ul {
+            padding-left: 30px;
+            margin-bottom: 20px;
+        }
+
+        .slide li {
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .slide li::marker {
+            color: #3498db;
+            font-weight: bold;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .tip-box {
+            background: #f8f9fa;
+            border-left: 5px solid #28a745;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .animation-demo {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .demo-element {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            border-radius: 50%;
+            margin: 20px auto;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-20px); }
+            60% { transform: translateY(-10px); }
+        }
+
+        .navigation {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 6px;
+            background: #ecf0f1;
+            border-radius: 3px;
+            margin: 0 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .quiz-container {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .quiz-question {
+            font-size: 22px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .quiz-option {
+            padding: 15px 20px;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 18px;
+        }
+
+        .quiz-option:hover {
+            border-color: #3498db;
+            background: #e3f2fd;
+        }
+
+        .quiz-option.correct {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+
+        .quiz-option.incorrect {
+            border-color: #dc3545;
+            background: #f8d7da;
+        }
+
+        .quiz-result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .quiz-result.correct {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .quiz-result.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Fullscreen styles */
+        .fullscreen {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            max-width: none !important;
+            z-index: 9999 !important;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .presentation-container {
+                height: 100vh;
+            }
+            
+            .presentation-header {
+                padding: 10px;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .presentation-title {
+                font-size: 18px;
+            }
+            
+            .controls {
+                gap: 5px;
+            }
+            
+            .btn {
+                padding: 6px 12px;
+                font-size: 14px;
+            }
+            
+            .slide-counter {
+                font-size: 16px;
+            }
+            
+            .slide {
+                padding: 20px;
+                min-height: auto;
+                margin: 10px;
+            }
+            
+            .slide h1 {
+                font-size: 28px;
+                margin-bottom: 20px;
+            }
+            
+            .slide h2 {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+            
+            .slide h3 {
+                font-size: 20px;
+                margin-bottom: 15px;
+            }
+            
+            .slide p, .slide li {
+                font-size: 18px;
+                margin-bottom: 12px;
+            }
+            
+            .quiz-question {
+                font-size: 20px;
+            }
+            
+            .quiz-option {
+                font-size: 16px;
+                padding: 12px 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .slide {
+                padding: 15px;
+            }
+            
+            .slide h1 {
+                font-size: 24px;
+            }
+            
+            .slide h2 {
+                font-size: 20px;
+            }
+            
+            .slide p, .slide li {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container" id="presentationContainer">
+        <div class="presentation-header">
+            <div class="presentation-title">Анімація та ефекти в презентаціях</div>
+            <div class="controls">
+                <span class="slide-counter" id="slideCounter">1 / 12</span>
+                <button class="btn btn-fullscreen" onclick="toggleFullscreen()">📺 Повний екран</button>
+            </div>
+        </div>
+
+        <div class="slide-container">
+            <!-- Slide 1: Title -->
+            <div class="slide active">
+                <h1>Анімація та ефекти в презентаціях</h1>
+                <div class="highlight-box">
+                    <h3 style="color: white; margin-bottom: 20px;">Ключові поняття теми:</h3>
+                    <ul style="color: white; font-size: 22px;">
+                        <li>Засоби керування презентацією</li>
+                        <li>Режим доповідача</li>
+                        <li>Анімація та рух об'єктів</li>
+                        <li>Групування об'єктів</li>
+                    </ul>
+                </div>
+                <div class="animation-demo">
+                    <div class="demo-element"></div>
+                    <p style="color: #666; font-size: 18px;">Приклад анімації</p>
+                </div>
+            </div>
+
+            <!-- Slide 2: Controls -->
+            <div class="slide">
+                <h2>Засоби керування презентацією</h2>
+                <div class="tip-box">
+                    <h3>Основні клавіші керування:</h3>
+                    <ul>
+                        <li><strong>F5</strong> - початок показу з першого слайда</li>
+                        <li><strong>Shift + F5</strong> - початок з поточного слайда</li>
+                        <li><strong>Esc</strong> - вимкнути перо/лазерний вказівник</li>
+                    </ul>
+                </div>
+                <p>Під час показу презентації ви можете:</p>
+                <ul>
+                    <li>Використовувати мишу як лазерний вказівник</li>
+                    <li>Змінювати колір вказівника (за замовчуванням червоний)</li>
+                    <li>Переходити між слайдами</li>
+                    <li>Збільшувати частини слайда</li>
+                </ul>
+            </div>
+
+            <!-- Slide 3: Speaker Notes -->
+            <div class="slide">
+                <h2>Нотатки доповідача</h2>
+                <p>Нотатки доповідача - це поле під кожним слайдом, яке допомагає під час презентації.</p>
+                <div class="highlight-box">
+                    <h3 style="color: white;">Особливості нотаток:</h3>
+                    <ul style="color: white;">
+                        <li>Відображаються лише на вашому моніторі</li>
+                        <li>Глядачі їх не бачать</li>
+                        <li>Можна використовувати як сценарій</li>
+                        <li>Допомагають згадати важливі моменти</li>
+                    </ul>
+                </div>
+                <div class="tip-box">
+                    <p><strong>Порада:</strong> Додавайте нотатки під час створення презентації, щоб не забути важливі деталі під час виступу.</p>
+                </div>
+            </div>
+
+            <!-- Slide 4: Speaker Mode -->
+            <div class="slide">
+                <h2>Режим доповідача</h2>
+                <p>Режим доповідача дозволяє:</p>
+                <ul>
+                    <li>Переглядати презентацію з нотатками на одному комп'ютері</li>
+                    <li>Показувати лише слайди на екрані для аудиторії</li>
+                    <li>Використовувати ескізи для вибору слайдів</li>
+                    <li>Показувати слайди в довільному порядку</li>
+                </ul>
+                <div class="animation-demo">
+                    <p style="font-size: 20px; color: #2c3e50;"><strong>Додаткові можливості:</strong></p>
+                    <p>Зміна яскравості екрана, використання інструментів для малювання, збільшення фрагментів слайдів</p>
+                </div>
+            </div>
+
+            <!-- Slide 5: Recording -->
+            <div class="slide">
+                <h2>Репетиція та записування часу</h2>
+                <p>PowerPoint може записувати час відображення кожного слайда під час репетиції.</p>
+                <div class="highlight-box">
+                    <h3 style="color: white;">Функції записування:</h3>
+                    <ul style="color: white;">
+                        <li>Запис голосу та відео</li>
+                        <li>Фіксація рухів рукописного вводу</li>
+                        <li>Автоматичний хронометраж слайдів</li>
+                        <li>Можливість повторного запису</li>
+                    </ul>
+                </div>
+                <p>Хронометраж можна використати для автоматичного показу слайдів без участі доповідача.</p>
+            </div>
+
+            <!-- Slide 6: Animation Basics -->
+            <div class="slide">
+                <h2>Що таке анімація?</h2>
+                <div class="highlight-box">
+                    <h3 style="color: white; text-align: center;">Анімація</h3>
+                    <p style="color: white; text-align: center; font-size: 22px;">це динамічний візуальний ефект, доданий до текстового або графічного об'єкта слайда</p>
+                </div>
+                <p>Ефекти анімації дозволяють:</p>
+                <ul>
+                    <li>Оформити появу об'єктів</li>
+                    <li>Налаштувати зникнення елементів</li>
+                    <li>Створити переміщення об'єктів</li>
+                    <li>Змінювати розмір та колір</li>
+                </ul>
+            </div>
+
+            <!-- Slide 7: Animation Types -->
+            <div class="slide">
+                <h2>Типи анімації</h2>
+                <p>Анімацію можна додавати до:</p>
+                <div class="tip-box">
+                    <ul>
+                        <li><strong>Окремих об'єктів</strong> на слайді</li>
+                        <li><strong>Слайда в цілому</strong></li>
+                        <li><strong>Групи слайдів</strong></li>
+                    </ul>
+                </div>
+                <p>Алгоритм додавання анімації:</p>
+                <ol>
+                    <li>Перейти до тексту або об'єкта</li>
+                    <li>Вибрати вкладку "Анімації"</li>
+                    <li>Обрати ефект анімації</li>
+                    <li>Налаштувати параметри ефектів</li>
+                </ol>
+            </div>
+
+            <!-- Slide 8: Animation Control -->
+            <div class="slide">
+                <h2>Управління анімацією</h2>
+                <p>Анімацію можна запускати різними способами:</p>
+                <div class="highlight-box">
+                    <ul style="color: white;">
+                        <li><strong>По клацанню</strong> - запуск за клацанням миші</li>
+                        <li><strong>Після попереднього</strong> - відразу після попереднього ефекту</li>
+                        <li><strong>З попереднім</strong> - одночасно з попереднім ефектом</li>
+                    </ul>
+                </div>
+                <div class="tip-box">
+                    <p><strong>Важливо:</strong> До одного об'єкта можна додати кілька анімацій різних типів!</p>
+                </div>
+                <p>Параметр "Час" дозволяє налаштувати тривалість та кількість повторень ефекту.</p>
+            </div>
+
+            <!-- Slide 9: Motion Paths -->
+            <div class="slide">
+                <h2>Рух об'єктів в презентації</h2>
+                <p>Анімаційні ефекти групи "Шляхи переміщення" налаштовують переміщення об'єктів:</p>
+                <div class="animation-demo">
+                    <div class="demo-element" style="animation: moveRight 3s infinite alternate;"></div>
+                    <p style="color: #666;">Приклад руху по траєкторії</p>
+                </div>
+                <p>Алгоритм додавання шляху:</p>
+                <ol>
+                    <li>Клацнути об'єкт для анімації</li>
+                    <li>Вкладка "Анімація" → "Додати анімацію"</li>
+                    <li>Розділ "Шляхи переміщення"</li>
+                    <li>Вибрати потрібний варіант або "Користувацький шлях"</li>
+                </ol>
+            </div>
+
+            <!-- Slide 10: Grouping -->
+            <div class="slide">
+                <h2>Групування об'єктів</h2>
+                <div class="highlight-box">
+                    <h3 style="color: white;">Групування</h3>
+                    <p style="color: white; font-size: 20px;">це об'єднання об'єктів у одну групу для роботи з усією групою як з одним цілим</p>
+                </div>
+                <p><strong>Алгоритм групування:</strong></p>
+                <ol>
+                    <li>Вибрати об'єкти, утримуючи клавішу Ctrl</li>
+                    <li>Викликати контекстне меню</li>
+                    <li>Обрати команду "Групувати"</li>
+                </ol>
+                <p><strong>Розгрупування:</strong> вибрати згрупований об'єкт → контекстне меню → "Розгрупувати"</p>
+            </div>
+
+            <!-- Slide 11: Quiz -->
+            <div class="slide">
+                <h2>Перевірка знань</h2>
+                <div class="quiz-container">
+                    <div class="quiz-question">Що таке анімація в презентації?</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectAnswer(this, false)">Статичне зображення на слайді</div>
+                        <div class="quiz-option" onclick="selectAnswer(this, true)">Динамічний візуальний ефект для об'єктів слайда</div>
+                        <div class="quiz-option" onclick="selectAnswer(this, false)">Фоновий малюнок презентації</div>
+                        <div class="quiz-option" onclick="selectAnswer(this, false)">Текстовий елемент слайда</div>
+                    </div>
+                    <div class="quiz-result" id="quizResult" style="display: none;"></div>
+                </div>
+                <div class="tip-box">
+                    <p><strong>Згадайте:</strong> Анімація дозволяє створити появу, зникнення та переміщення об'єктів на слайді.</p>
+                </div>
+            </div>
+
+            <!-- Slide 12: Summary -->
+            <div class="slide">
+                <h1>Підсумок</h1>
+                <div class="highlight-box">
+                    <h3 style="color: white; margin-bottom: 20px;">Ви дізналися про:</h3>
+                    <ul style="color: white; font-size: 20px;">
+                        <li>Засоби керування презентацією (F5, Shift+F5)</li>
+                        <li>Роботу з нотатками доповідача</li>
+                        <li>Можливості режиму доповідача</li>
+                        <li>Записування та хронометраж презентації</li>
+                        <li>Типи анімації та способи їх застосування</li>
+                        <li>Управління ефектами анімації</li>
+                        <li>Створення шляхів переміщення об'єктів</li>
+                        <li>Групування та розгрупування об'єктів</li>
+                    </ul>
+                </div>
+                <div class="animation-demo">
+                    <div class="demo-element"></div>
+                    <p style="color: #2c3e50; font-size: 20px; font-weight: bold;">Практикуйтеся створювати анімовані презентації!</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button class="btn" onclick="previousSlide()">← Попередній</button>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <button class="btn" onclick="nextSlide()">Наступний →</button>
+        </div>
+    </div>
+
+    <style>
+        @keyframes moveRight {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(200px); }
+        }
+    </style>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function updateSlideCounter() {
+            document.getElementById('slideCounter').textContent = `${currentSlide + 1} / ${totalSlides}`;
+            const progress = ((currentSlide + 1) / totalSlides) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function showSlide(index) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[index].classList.add('active');
+            updateSlideCounter();
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                showSlide(currentSlide);
+            }
+        }
+
+        function previousSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                showSlide(currentSlide);
+            }
+        }
+
+        function toggleFullscreen() {
+            const container = document.getElementById('presentationContainer');
+            
+            if (!document.fullscreenElement) {
+                // Enter fullscreen
+                if (container.requestFullscreen) {
+                    container.requestFullscreen();
+                } else if (container.webkitRequestFullscreen) {
+                    container.webkitRequestFullscreen();
+                } else if (container.msRequestFullscreen) {
+                    container.msRequestFullscreen();
+                }
+                container.classList.add('fullscreen');
+            } else {
+                // Exit fullscreen
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+                container.classList.remove('fullscreen');
+            }
+        }
+
+        // Listen for fullscreen changes
+        document.addEventListener('fullscreenchange', function() {
+            const container = document.getElementById('presentationContainer');
+            if (!document.fullscreenElement) {
+                container.classList.remove('fullscreen');
+            }
+        });
+
+        function selectAnswer(element, isCorrect) {
+            const options = document.querySelectorAll('.quiz-option');
+            const result = document.getElementById('quizResult');
+            
+            // Remove previous selections
+            options.forEach(option => {
+                option.classList.remove('correct', 'incorrect');
+            });
+            
+            // Mark the selected answer
+            if (isCorrect) {
+                element.classList.add('correct');
+                result.className = 'quiz-result correct';
+                result.textContent = 'Правильно! Анімація - це динамічний візуальний ефект для об\'єктів слайда.';
+            } else {
+                element.classList.add('incorrect');
+                result.className = 'quiz-result incorrect';
+                result.textContent = 'Неправильно. Анімація - це динамічний візуальний ефект, а не статичний елемент.';
+            }
+            
+            result.style.display = 'block';
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowRight' || event.key === ' ') {
+                nextSlide();
+            } else if (event.key === 'ArrowLeft') {
+                previousSlide();
+            } else if (event.key === 'Escape') {
+                const container = document.getElementById('presentationContainer');
+                if (document.fullscreenElement) {
+                    toggleFullscreen();
+                }
+            }
+        });
+
+        // Initialize
+        updateSlideCounter();
+    </script>
+</body>
+</html>
