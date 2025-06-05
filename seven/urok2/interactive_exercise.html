@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Безпека паролів - Інтерактивна вправа</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #0f0f23 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+        }
+
+        .fullscreen-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(45deg, #ff006e, #8338ec);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 0 20px rgba(255, 0, 110, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .fullscreen-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 25px rgba(255, 0, 110, 0.5);
+        }
+
+        .title {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #00f5ff, #ff006e, #8338ec);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(0, 245, 255, 0.5);
+        }
+
+        .exercise-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(0, 245, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .password-builder {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+            position: relative;
+        }
+
+        .password-builder::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #00f5ff, #ff006e, #8338ec, #00f5ff);
+            border-radius: 15px;
+            z-index: -1;
+            animation: borderGlow 3s linear infinite;
+        }
+
+        @keyframes borderGlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 20px;
+            border: 2px solid rgba(0, 245, 255, 0.3);
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            color: #ffffff;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .password-input:focus {
+            outline: none;
+            border-color: #00f5ff;
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+        }
+
+        .strength-meter {
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            transition: all 0.5s ease;
+            border-radius: 5px;
+        }
+
+        .strength-weak { background: linear-gradient(90deg, #ff4757, #ff6b7a); }
+        .strength-medium { background: linear-gradient(90deg, #ffa502, #ffb627); }
+        .strength-strong { background: linear-gradient(90deg, #2ed573, #7bed9f); }
+
+        .criteria-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .criteria-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .criteria-item.met {
+            border-color: #2ed573;
+            background: rgba(46, 213, 115, 0.1);
+            box-shadow: 0 0 15px rgba(46, 213, 115, 0.2);
+        }
+
+        .criteria-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 12px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .criteria-icon.unmet {
+            background: rgba(255, 71, 87, 0.2);
+            color: #ff4757;
+        }
+
+        .criteria-icon.met {
+            background: rgba(46, 213, 115, 0.2);
+            color: #2ed573;
+        }
+
+        .drag-drop-area {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px dashed rgba(0, 245, 255, 0.3);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .drag-drop-area.drag-over {
+            border-color: #00f5ff;
+            background: rgba(0, 245, 255, 0.1);
+            box-shadow: 0 0 30px rgba(0, 245, 255, 0.2);
+        }
+
+        .password-components {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .component {
+            background: linear-gradient(135deg, rgba(255, 0, 110, 0.2), rgba(131, 56, 236, 0.2));
+            border: 1px solid rgba(255, 0, 110, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: grab;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .component:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 0, 110, 0.3);
+        }
+
+        .component:active {
+            cursor: grabbing;
+        }
+
+        .component.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+
+        .result-display {
+            background: rgba(0, 0, 0,  0.4);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            border: 1px solid rgba(0, 245, 255, 0.2);
+        }
+
+        .generated-password {
+            font-family: 'Courier New', monospace;
+            font-size: 24px;
+            color: #00f5ff;
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            word-break: break-all;
+            border: 1px solid rgba(0, 245, 255, 0.3);
+        }
+
+        .score-display {
+            text-align: center;
+            font-size: 20px;
+            margin-top: 20px;
+        }
+
+        .score {
+            color: #00f5ff;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(0, 245, 255, 0.5);
+        }
+
+        .reset-btn {
+            background: linear-gradient(45deg, #ff006e, #8338ec);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            font-size: 18px;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .reset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 0, 110, 0.4);
+        }
+
+        .tips-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            border-left: 4px solid #00f5ff;
+        }
+
+        .tips-title {
+            color: #00f5ff;
+            font-size: 22px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .tips-title::before {
+            content: '💡';
+            margin-right: 10px;
+            font-size: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .title {
+                font-size: 2em;
+            }
+            
+            .exercise-container {
+                padding: 20px;
+            }
+            
+            .password-input {
+                font-size: 18px;
+            }
+            
+            .criteria-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .password-components {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+            
+            .generated-password {
+                font-size: 18px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .title {
+                font-size: 1.8em;
+            }
+            
+            .exercise-container {
+                padding: 15px;
+            }
+            
+            .password-components {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Fullscreen styles */
+        .fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 9999;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #0f0f23 100%);
+            overflow-y: auto;
+        }
+
+        .fullscreen .container {
+            max-width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .fullscreen .exercise-container {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="fullscreen-btn" onclick="toggleFullscreen()">⛶ На весь екран</button>
+        
+        <h1 class="title">🔐 Створення надійного паролю</h1>
+        
+        <div class="exercise-container">
+            <div class="password-builder">
+                <h2 style="margin-bottom: 20px; color: #00f5ff;">Створи свій надійний пароль:</h2>
+                <input type="text" class="password-input" id="passwordInput" placeholder="Введи свій пароль тут..." />
+                
+                <div class="strength-meter">
+                    <div class="strength-fill" id="strengthFill"></div>
+                </div>
+                
+                <div class="criteria-list" id="criteriaList">
+                    <div class="criteria-item" data-criteria="length">
+                        <div class="criteria-icon unmet">8+</div>
+                        <span>Мінімум 8 символів</span>
+                    </div>
+                    <div class="criteria-item" data-criteria="uppercase">
+                        <div class="criteria-icon unmet">A</div>
+                        <span>Великі літери (A-Z)</span>
+                    </div>
+                    <div class="criteria-item" data-criteria="lowercase">
+                        <div class="criteria-icon unmet">a</div>
+                        <span>Малі літери (a-z)</span>
+                    </div>
+                    <div class="criteria-item" data-criteria="numbers">
+                        <div class="criteria-icon unmet">1</div>
+                        <span>Цифри (0-9)</span>
+                    </div>
+                    <div class="criteria-item" data-criteria="special">
+                        <div class="criteria-icon unmet">@</div>
+                        <span>Спеціальні символи (!@#$%)</span>
+                    </div>
+                    <div class="criteria-item" data-criteria="unique">
+                        <div class="criteria-icon unmet">✨</div>
+                        <span>Унікальний пароль</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 30px;">
+                <h2 style="margin-bottom: 20px; color: #ff006e;">Перетягни компоненти для створення паролю:</h2>
+                
+                <div class="drag-drop-area" id="dropArea">
+                    <p style="color: #00f5ff; font-size: 20px;">Перетягуй сюди компоненти паролю</p>
+                    <div class="generated-password" id="generatedPassword" style="display: none;"></div>
+                </div>
+                
+                <div class="password-components">
+                    <div class="component" draggable="true" data-value="MyName">
+                        <strong>Ім'я/Нікнейм</strong><br>
+                        <small>MyName</small>
+                    </div>
+                    <div class="component" draggable="true" data-value="2024">
+                        <strong>Рік</strong><br>
+                        <small>2024</small>
+                    </div>
+                    <div class="component" draggable="true" data-value="!@#">
+                        <strong>Символи</strong><br>
+                        <small>!@#$%</small>
+                    </div>
+                    <div class="component" draggable="true" data-value="Ukr">
+                        <strong>Країна</strong><br>
+                        <small>Ukr</small>
+                    </div>
+                    <div class="component" draggable="true" data-value="77">
+                        <strong>Числа</strong><br>
+                        <small>77, 123</small>
+                    </div>
+                    <div class="component" draggable="true" data-value="Love">
+                        <strong>Хобі</strong><br>
+                        <small>Love, Sport</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-display">
+                <div class="score-display">
+                    <span>Оцінка безпеки: </span>
+                    <span class="score" id="securityScore">0/100</span>
+                </div>
+                <button class="reset-btn" onclick="resetExercise()">🔄 Почати заново</button>
+            </div>
+        </div>
+
+        <div class="tips-section">
+            <h3 class="tips-title">Поради для створення надійного паролю</h3>
+            <ul style="padding-left: 20px;">
+                <li>Використовуй комбінацію великих і малих літер, цифр та спеціальних символів</li>
+                <li>Створи унікальний пароль для кожного сервісу</li>
+                <li>Уникай використання особистої інформації (дата народження, ім'я)</li>
+                <li>Використовуй фрази або речення як основу для паролю</li>
+                <li>Регулярно змінюй паролі для важливих акаунтів</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let droppedComponents = [];
+        let draggedElement = null;
+
+        // Password strength checker
+        function checkPasswordStrength(password) {
+            const criteria = {
+                length: password.length >= 8,
+                uppercase: /[A-Z]/.test(password),
+                lowercase: /[a-z]/.test(password),
+                numbers: /\d/.test(password),
+                special: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+                unique: !isCommonPassword(password)
+            };
+
+            updateCriteriaDisplay(criteria);
+            
+            const score = Object.values(criteria).filter(Boolean).length;
+            const percentage = (score / 6) * 100;
+            
+            updateStrengthMeter(percentage);
+            updateSecurityScore(Math.round(percentage));
+            
+            return score;
+        }
+
+        function isCommonPassword(password) {
+            const common = ['123456', 'password', 'admin', 'qwerty', '123456789', 'letmein'];
+            return common.includes(password.toLowerCase());
+        }
+
+        function updateCriteriaDisplay(criteria) {
+            Object.keys(criteria).forEach(key => {
+                const item = document.querySelector(`[data-criteria="${key}"]`);
+                const icon = item.querySelector('.criteria-icon');
+                
+                if (criteria[key]) {
+                    item.classList.add('met');
+                    icon.classList.remove('unmet');
+                    icon.classList.add('met');
+                    icon.textContent = '✓';
+                } else {
+                    item.classList.remove('met');
+                    icon.classList.remove('met');
+                    icon.classList.add('unmet');
+                    // Reset original icons
+                    const originalIcons = {'length': '8+', 'uppercase': 'A', 'lowercase': 'a', 'numbers': '1', 'special': '@', 'unique': '✨'};
+                    icon.textContent = originalIcons[key];
+                }
+            });
+        }
+
+        function updateStrengthMeter(percentage) {
+            const fill = document.getElementById('strengthFill');
+            fill.style.width = percentage + '%';
+            
+            if (percentage < 40) {
+                fill.className = 'strength-fill strength-weak';
+            } else if (percentage < 70) {
+                fill.className = 'strength-fill strength-medium';
+            } else {
+                fill.className = 'strength-fill strength-strong';
+            }
+        }
+
+        function updateSecurityScore(score) {
+            document.getElementById('securityScore').textContent = score + '/100';
+        }
+
+        // Drag and drop functionality
+        function setupDragAndDrop() {
+            const components = document.querySelectorAll('.component');
+            const dropArea = document.getElementById('dropArea');
+
+            components.forEach(component => {
+                component.addEventListener('dragstart', handleDragStart);
+                component.addEventListener('dragend', handleDragEnd);
+            });
+
+            dropArea.addEventListener('dragover', handleDragOver);
+            dropArea.addEventListener('drop', handleDrop);
+            dropArea.addEventListener('dragenter', handleDragEnter);
+            dropArea.addEventListener('dragleave', handleDragLeave);
+        }
+
+        function handleDragStart(e) {
+            draggedElement = e.target;
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'copy';
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+            draggedElement = null;
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+        }
+
+        function handleDragEnter(e) {
+            e.preventDefault();
+            document.getElementById('dropArea').classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            if (!e.relatedTarget || !e.currentTarget.contains(e.relatedTarget)) {
+                document.getElementById('dropArea').classList.remove('drag-over');
+            }
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            document.getElementById('dropArea').classList.remove('drag-over');
+            
+            if (draggedElement) {
+                const value = draggedElement.dataset.value;
+                droppedComponents.push(value);
+                updateGeneratedPassword();
+            }
+        }
+
+        function updateGeneratedPassword() {
+            const passwordDisplay = document.getElementById('generatedPassword');
+            const generatedPassword = droppedComponents.join('');
+            
+            if (generatedPassword) {
+                passwordDisplay.textContent = generatedPassword;
+                passwordDisplay.style.display = 'block';
+                
+                // Update the password input and check strength
+                document.getElementById('passwordInput').value = generatedPassword;
+                checkPasswordStrength(generatedPassword);
+            }
+        }
+
+        function resetExercise() {
+            droppedComponents = [];
+            document.getElementById('passwordInput').value = '';
+            document.getElementById('generatedPassword').style.display = 'none';
+            document.getElementById('strengthFill').style.width = '0%';
+            updateSecurityScore(0);
+            
+            // Reset all criteria
+            const criteriaItems = document.querySelectorAll('.criteria-item');
+            criteriaItems.forEach(item => {
+                item.classList.remove('met');
+                const icon = item.querySelector('.criteria-icon');
+                icon.classList.remove('met');
+                icon.classList.add('unmet');
+                
+                // Reset original icons
+                const key = item.dataset.criteria;
+                const originalIcons = {'length': '8+', 'uppercase': 'A', 'lowercase': 'a', 'numbers': '1', 'special': '@', 'unique': '✨'};
+                icon.textContent = originalIcons[key];
+            });
+        }
+
+        function toggleFullscreen() {
+            const container = document.querySelector('.container');
+            const btn = document.querySelector('.fullscreen-btn');
+            
+            if (container.classList.contains('fullscreen')) {
+                container.classList.remove('fullscreen');
+                btn.textContent = '⛶ На весь екран';
+                document.body.style.overflow = 'auto';
+            } else {
+                container.classList.add('fullscreen');
+                btn.textContent = '✕ Вийти з повноекранного режиму';
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        // Event listeners
+        document.getElementById('passwordInput').addEventListener('input', function(e) {
+            checkPasswordStrength(e.target.value);
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setupDragAndDrop();
+            
+            // Handle escape key to exit fullscreen
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const container = document.querySelector('.container');
+                    if (container.classList.contains('fullscreen')) {
+                        toggleFullscreen();
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

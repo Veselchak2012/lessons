@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Персональний цифровий простір</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .presentation-container {
+            width: 100%;
+            max-width: 1400px;
+            height: 100vh;
+            margin: 0 auto;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide {
+            display: none;
+            padding: 40px;
+            height: calc(100vh - 80px);
+            background: rgba(255, 255, 255, 0.95);
+            margin: 20px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .slide h1 {
+            font-size: clamp(32px, 4vw, 48px);
+            color: #2c3e50;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .slide h2 {
+            font-size: clamp(28px, 3.5vw, 40px);
+            color: #34495e;
+            margin-bottom: 25px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .slide h3 {
+            font-size: clamp(24px, 3vw, 32px);
+            color: #2980b9;
+            margin-bottom: 20px;
+        }
+
+        .slide p, .slide li {
+            font-size: clamp(18px, 2.2vw, 24px);
+            line-height: 1.6;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            max-width: 1000px;
+        }
+
+        .slide ul {
+            text-align: left;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .slide li {
+            margin-bottom: 12px;
+            padding-left: 10px;
+        }
+
+        .icon-box {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .icon-item {
+            background: linear-gradient(145deg, #f0f8ff, #e6f3ff);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .icon-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .icon-item h4 {
+            font-size: 20px;
+            color: #2980b9;
+            margin-bottom: 10px;
+        }
+
+        .icon-item p {
+            font-size: 16px;
+            color: #34495e;
+        }
+
+        .password-tips {
+            background: linear-gradient(145deg, #fff5f5, #ffe6e6);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            max-width: 1000px;
+            border-left: 5px solid #e74c3c;
+        }
+
+        .security-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .security-item {
+            background: linear-gradient(145deg, #f8fff8, #e8f8e8);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background: linear-gradient(145deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .fullscreen-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            font-size: 20px;
+            z-index: 1001;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .fullscreen-btn:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: scale(1.1);
+        }
+
+        .slide-counter {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            color: #2c3e50;
+            z-index: 1001;
+            backdrop-filter: blur(10px);
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3498db, #2980b9);
+            transition: width 0.3s ease;
+            z-index: 1002;
+        }
+
+        .email-example {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 20px;
+            color: #2c3e50;
+            margin: 20px 0;
+            border: 2px solid #3498db;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+            padding: 2px 8px;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+
+        /* Мобільна адаптивність */
+        @media (max-width: 768px) {
+            .presentation-container {
+                height: 100vh;
+            }
+
+            .slide {
+                margin: 10px;
+                padding: 20px;
+                height: calc(100vh - 60px);
+            }
+
+            .controls {
+                bottom: 10px;
+                gap: 10px;
+            }
+
+            .btn {
+                padding: 10px 16px;
+                font-size: 14px;
+            }
+
+            .icon-box {
+                grid-template-columns: 1fr;
+            }
+
+            .security-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .fullscreen-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+
+            .slide-counter {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .slide {
+                margin: 5px;
+                padding: 15px;
+            }
+
+            .slide h1 {
+                font-size: 28px;
+            }
+
+            .slide h2 {
+                font-size: 24px;
+            }
+
+            .slide p, .slide li {
+                font-size: 18px;
+            }
+        }
+
+        /* Анімації */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .slide.active {
+            animation: slideIn 0.5s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <div class="progress-bar" id="progressBar"></div>
+        <div class="slide-counter" id="slideCounter">1 / 15</div>
+        <button class="fullscreen-btn" id="fullscreenBtn" title="Повний екран">⛶</button>
+
+        <!-- Слайд 1: Титульний -->
+        <div class="slide active">
+            <h1>Персональний цифровий простір</h1>
+            <h2>Безпека та продуктивність в онлайн світі</h2>
+            <p>Інформатика, 7 клас</p>
+        </div>
+
+        <!-- Слайд 2: Обліковий запис -->
+        <div class="slide">
+            <h2>Що таке обліковий запис?</h2>
+            <p><span class="highlight">Обліковий запис (акаунт)</span> — це особистий профіль користувача, який дозволяє входити та користуватися різними онлайн-сервісами.</p>
+            <div class="icon-box">
+                <div class="icon-item">
+                    <h4>📧 Ім'я користувача</h4>
+                    <p>Унікальне ім'я для ідентифікації</p>
+                </div>
+                <div class="icon-item">
+                    <h4>🔒 Пароль</h4>
+                    <p>Секретний код для захисту</p>
+                </div>
+                <div class="icon-item">
+                    <h4>📫 Email адреса</h4>
+                    <p>Для зв'язку та відновлення</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Слайд 3: Структура email -->
+        <div class="slide">
+            <h2>Будова електронної адреси</h2>
+            <div class="email-example">
+                InnaTrishchuk@gmail.com
+            </div>
+            <div class="icon-box">
+                <div class="icon-item">
+                    <h4>1️⃣ Ім'я користувача</h4>
+                    <p><strong>InnaTrishchuk</strong> - частина перед символом @</p>
+                </div>
+                <div class="icon-item">
+                    <h4>2️⃣ Символ @</h4>
+                    <p>Роздільник між ім'ям та доменом</p>
+                </div>
+                <div class="icon-item">
+                    <h4>3️⃣ Домен</h4>
+                    <p><strong>gmail.com</strong> - сервер електронної пошти</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Слайд 4: Двофакторна автентифікація -->
+        <div class="slide">
+            <h2>Двофакторна автентифікація</h2>
+            <p>Додатковий рівень безпеки, який вимагає <span class="highlight">два методи ідентифікації</span></p>
+            <div class="security-grid">
+                <div class="security-item">
+                    <h4>🔐 Що це дає?</h4>
+                    <p>Навіть якщо хтось дізнається ваш пароль, він не зможе увійти без додаткового підтвердження</p>
+                </div>
+                <div class="security-item">
+                    <h4>📱 Як працює?</h4>
+                    <p>Пароль + SMS код або додаток-автентифікатор</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Слайд 5: Надійний пароль -->
+        <div class="slide">
+            <h2>Як створити надійний пароль?</h2>
+            <div class="password-tips">
+                <ul>
+                    <li><strong>Довжина:</strong> Не менше 8 символів</li>
+                    <li><strong>Різноманітність:</strong> Букви, цифри, спеціальні символи</li>
+                    <li><strong>Унікальність:</strong> Кожен сервіс - окремий пароль</li>
+                    <li><strong>Регулярність:</strong> Змінюйте паролі періодично</li>
+                    <li><strong>Конфіденційність:</strong> Ніколи не діліться паролями</li>
+                </ul>
+            </div>
+            <p>❌ Уникайте: "123456", "пароль", дати народження</p>
+        </div>
+
+        <!-- Слайд 6: Google аккаунт -->
+        <div class="slide">
+            <h2>Обліковий запис Google</h2>
+            <p>Доступ до екосистеми сервісів Google</p>
+            <div class="icon-box">
+                <div class="icon-item">
+                    <h4>📧 Gmail</h4>
+                    <p>Електронна пошта</p>
+                </div>
+                <div class="icon-item">
+                    <h4>☁️ Google Drive</h4>
+                    <p>Хмарне сховище</p>
+                </div>
+                <div class="icon-item">
+                    <h4>📄 Google Docs</h4>
+                    <p>Текстові документи</p>
+                </div>
+                <div class="icon-item">
+                    <h4>📊 Google Sheets</h4>
+                    <p>Електронні таблиці</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Слайд 7: Інструменти Google -->
+        <div class="slide">
+            <h2>Популярні інструменти Google</h2>
+            <div class="icon-box">
+                <div class="icon-item">
+                    <h4>🔍 Google Search</h4>
+                    <p>Найбільша пошукова система</p>
+                </div>
+                <div class="icon-item">
+                    <h4>🗺️ Google Maps</h4>
+                    <p>Карти та навігація</p>
+                </div>
+                <div class="icon-item">
+                    <h4>📺 YouTube</h4>
+                    <p>Відеохостинг</p>
+                </div>
+                <div class="icon-item">
+                    <h4>📸 Google Photos</h4>
+                    <p>Зберігання фото</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Слайд 8: Захист мобільних пристроїв -->
+        <div class="slide">
+            <h2>Захист смартфонів та планшетів</h2>
+            <div class="security-grid">
+                <div class="security-item">
+                    <h4>🔢 Пароль/ПІН-код</h4>
+                    <p>Перший рівень захисту при блокуванні</p>
+                </div>
+                <div class="security-item">
+                    <h4>🎨 Графічний патерн</h4>
+                    <p>Намалюйте унікальний візерунок</p>
+                </div>
+                <div class="security-item">
+                    <h4>👆 Відбиток пальця</h4>
+                    <p>Біометричний захист</p>
+                </div>
+                <div class="security-item">
+                    <h4>📍 Віддалене відслідковування</h4>
+                    <p>Find My Device для Android</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Слайд 9: Віддалене управління -->
+        <div class="slide">
+            <h2>Віддалене управління пристроєм</h2>
+            <h3>🔍 Віддалене відслідковування</h3>
+            <p>Визначення місцезнаходження за допомогою GPS та інтернету</p>
+            
+            <h3>🗑️ Віддалене видалення даних</h3>
+            <ul>
+                <li>Видалення особистих даних</li>
+                <li>Блокування пристрою</li>
+                <li>Захист від несанкціонованого доступу</li>
+            </ul>
+        </div>
+
+        <!-- Слайд 10: Синхронізація даних -->
+        <div class="slide">
+            <h2>Синхронізація даних</h2>
+            <p>Процес обміну інформацією між пристроями для забезпечення <span class="highlight">ідентичності даних</span></p>
+            <div class="icon-box">
+                <div class="icon-item">
+                    <h4>☁️ Хмарні послуги</h4>
+                    <p>Google Drive, Dropbox, iCloud</p>
+                </div>
+                <div class="icon-item">
+                    <h4>👤 Один акаунт</h4>
+                    <p>Доступ з усіх пристроїв</p>
+                </div>
+                <div class="icon-item">
+                    <h4>💾 Резервне копіювання</h4>
+                    <p>Безпека ваших даних</p>
+                </div>
+                <div class="icon-item">
+                    <h4>🌐 Доступ звідусіль</h4>
+                    <p>Робота з будь-якого місця</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Слайд 11: Розширення браузера -->
+        <div class="slide">
+            <h2>Розширення для браузера</h2>
+            <p>Додаткові програми для <span class="highlight">розширення функціональності</span> браузера</p>
+            <div class="security-grid">
+                <div class="security-item">
+                    <h4>🌐 Google Translate</h4>
+                    <p>Миттєвий переклад веб-сторінок</p>
+                </div>
+                <div class="security-item">
+                    <h4>🔖 Закладки</h4>
+                    <p>Організація улюблених сайтів</p>
+                </div>
+                <div class="security-item">
+                    <h4>🛡️ Блокувальники реклами</h4>
+                    <p>Безпечний серфінг</p>
+                </div>
+                <div class="security-item">
+                    <h4>📊 Інструменти продуктивності</h4>
+                    <p>Планувальники та нотатки</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Слайд 12: VPN технологія -->
+        <div class="slide">
+            <h2>Технологія VPN</h2>
+            <p><span class="highlight">Virtual Private Network</span> - безпечне та приватне з'єднання з інтернетом</p>
+            <div class="security-grid">
+                <div class="security-item">
+                    <h4>🔐 Шифрування трафіку</h4>
+                    <p>Захист через зашифрований тунель</p>
+                </div>
+                <div class="security-item">
+                    <h4>🕶️ Приватність</h4>
+                    <p>Приховування вашої активності</p>
+                </div>
+                <div class="security-item">
+                    <h4>🌍 Обхід блокувань</h4>
+                    <p>Доступ до заблокованих ресурсів</p>
+                </div>
+                <div class="security-item">
+                    <h4>🛡️ Безпека в Wi-Fi</h4>
+                    <p>Захист в публічних мережах</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Слайд 13: Фішинг -->
+        <div class="slide">
+            <h2>Увага! Фішинг</h2>
+            <p>Атака для <span class="highlight">виманювання конфіденційної інформації</span></p>
+            <div class="password-tips">
+                <h4>🚨 Ознаки фішингу:</h4>
+                <ul>
+                    <li>Загальні привітання ("Шановний клієнт")</li>
+                    <li>Запити особистої інформації</li>
+                    <li>Створення відчуття терміновості</li>
+                    <li>Підозрілі домени та посилання</li>
+                    <li>Граматичні помилки</li>
+                    <li>Нереалістичні пропозиції</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Слайд 14: Цифровий слід -->
+        <div class="slide">
+            <h2>Цифровий слід</h2>
+            <p>Усе, що залишається в пам'яті мережі про вашу активність</p>
+            <div class="security-grid">
+                <div class="security-item">
+                    <h4>📝 Що включає:</h4>
+                    <ul>
+                        <li>Створення акаунтів</li>
+                        <li>Відвідування сайтів</li>
+                        <li>Лайки та коментарі</li>
+                        <li>Покупки онлайн</li>
+                    </ul>
+                </div>
+                <div class="security-item">
+                    <h4>⚠️ Пам'ятайте:</h4>
+                    <ul>
+                        <li>Видалене можна відновити</li>
+                        <li>Скріншоти зберігаються</li>
+                        <li>Вплив на репутацію</li>
+                        <li>Постійність в мережі</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Слайд 15: Підсумок -->
+        <div class="slide">
+            <h2>🎯 Підсумок</h2>
+            <div class="icon-box">
+                <div class="icon-item">
+                    <h4>🔐 Безпека акаунтів</h4>
+                    <p>Надійні паролі та двофакторна автентифікація</p>
+                </div>
+                <div class="icon-item">
+                    <h4>📱 Захист пристроїв</h4>
+                    <p>Блокування екрана та віддалене управління</p>
+                </div>
+                <div class="icon-item">
+                    <h4>☁️ Синхронізація</h4>
+                    <p>Доступ до даних з будь-якого місця</p>
+                </div>
+                <div class="icon-item">
+                    <h4>🛡️ Онлайн безпека</h4>
+                    <p>VPN, розширення браузера, обережність з фішингом</p>
+                </div>
+            </div>
+            <p><strong>Ваш цифровий простір - це ваша відповідальність!</strong></p>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="btn" id="prevBtn">← Назад</button>
+        <button class="btn" id="nextBtn">Вперед →</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const slideCounter = document.getElementById('slideCounter');
+        const progressBar = document.getElementById('progressBar');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            
+            updateUI();
+        }
+
+        function updateUI() {
+            slideCounter.textContent = `${currentSlide + 1} / ${totalSlides}`;
+            progressBar.style.width = `${((currentSlide + 1) / totalSlides) * 100}%`;
+            
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === totalSlides - 1;
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                showSlide(currentSlide + 1);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                showSlide(currentSlide - 1);
+            }
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log('Fullscreen не підтримується');
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // Event listeners
+        nextBtn.addEventListener('click', nextSlide);
+        prevBtn.addEventListener('click', prevSlide);
+        fullscreenBtn.addEventListener('click', toggleFullscreen);
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowRight':
+                case ' ':
+                    e.preventDefault();
+                    nextSlide();
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    prevSlide();
+                    break;
+                case 'Escape':
+                    if (document.fullscreenElement) {
+                        document.exitFullscreen();
+                    }
+                    break;
+                case 'f':
+                case 'F':
+                    e.preventDefault();
+                    toggleFullscreen();
+                    break;
+            }
+        });
+
+        // Touch support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0) {
+                    nextSlide();
+                } else {
+                    prevSlide();
+                }
+            }
+        }
+
+        // Fullscreen change handler
+        document.addEventListener('fullscreenchange', () => {
+            if (document.fullscreenElement) {
+                fullscreenBtn.innerHTML = '⤨';
+                fullscreenBtn.title = 'Вийти з повного екрана';
+            } else {
+                fullscreenBtn.innerHTML = '⛶';
+                fullscreenBtn.title = 'Повний екран';
+            }
+        });
+
+        // Initialize
+        updateUI();
+
+        // Auto-adjust for iframe
+        if (window.self !== window.top) {
+            // We're in an iframe
+            document.body.style.margin = '0';
+            document.body.style.height = '100vh';
+        }
+    </script>
+</body>
+</html>
