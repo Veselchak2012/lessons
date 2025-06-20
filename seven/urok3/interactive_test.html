@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест: Персональний цифровий простір</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            font-size: 18px;
+        }
+
+        .test-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .fullscreen-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .fullscreen-btn:hover {
+            background: #5a6fd8;
+            transform: scale(1.05);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .test-content {
+            padding: 40px;
+        }
+
+        .question-container {
+            display: none;
+            animation: slideIn 0.5s ease;
+        }
+
+        .question-container.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .question {
+            background: #f8f9ff;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border-left: 5px solid #667eea;
+        }
+
+        .question h3 {
+            font-size: 1.4em;
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .options {
+            list-style: none;
+        }
+
+        .options li {
+            margin-bottom: 15px;
+        }
+
+        .options input[type="radio"] {
+            display: none;
+        }
+
+        .options label {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            background: white;
+            border: 2px solid #e0e6ff;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1em;
+            line-height: 1.5;
+        }
+
+        .options label:hover {
+            border-color: #667eea;
+            background: #f0f3ff;
+        }
+
+        .options input[type="radio"]:checked + label {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .options label::before {
+            content: '';
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ccc;
+            border-radius: 50%;
+            margin-right: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .options input[type="radio"]:checked + label::before {
+            background: white;
+            border-color: white;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: #f0f0f0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            transition: width 0.5s ease;
+            border-radius: 3px;
+        }
+
+        .question-counter {
+            text-align: center;
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+
+        .results {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .results.active {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 30px auto;
+            font-size: 3em;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .score-excellent {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .score-good {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .score-fair {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: #333;
+        }
+
+        .score-poor {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            color: #333;
+        }
+
+        .restart-btn {
+            background: #28a745;
+            color: white;
+            margin-top: 30px;
+        }
+
+        .restart-btn:hover {
+            background: #218838;
+        }
+
+        /* Fullscreen styles */
+        .fullscreen {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 9999 !important;
+            max-width: none !important;
+            border-radius: 0 !important;
+            overflow-y: auto;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+                font-size: 16px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .test-content {
+                padding: 20px;
+            }
+
+            .question {
+                padding: 20px;
+            }
+
+            .question h3 {
+                font-size: 1.2em;
+            }
+
+            .options label {
+                padding: 12px 15px;
+                font-size: 0.95em;
+            }
+
+            .btn {
+                padding: 12px 20px;
+                font-size: 0.95em;
+            }
+
+            .score-circle {
+                width: 150px;
+                height: 150px;
+                font-size: 2.2em;
+            }
+
+            .navigation {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .fullscreen-btn {
+                top: 10px;
+                right: 10px;
+                padding: 10px 12px;
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 20px 15px;
+            }
+
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .test-content {
+                padding: 15px;
+            }
+
+            .question {
+                padding: 15px;
+            }
+
+            .options label {
+                padding: 10px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container" id="testContainer">
+        <button class="fullscreen-btn" id="fullscreenBtn" onclick="toggleFullscreen()">
+            📱 На весь екран
+        </button>
+
+        <div class="header">
+            <h1>📱 Персональний цифровий простір</h1>
+            <p>Тест на перевірку знань</p>
+        </div>
+
+        <div class="test-content">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            
+            <div class="question-counter" id="questionCounter">
+                Питання 1 з 10
+            </div>
+
+            <!-- Question 1 -->
+            <div class="question-container active" data-question="1">
+                <div class="question">
+                    <h3>Що таке персональний цифровий простір?</h3>
+                    <ul class="options">
+                        <li>
+                            <input type="radio" name="q1" value="a" id="q1a">
+                            <label for="q1a">Фізичне місце для зберігання комп'ютерів</label>
+                        </li>
+                        <li>
+                            <input type="radio" name="q1" value="b" id="q1b">
+                            <label for="q1b">Віртуальний простір для зберігання та обробки інформації за допомогою цифрових пристроїв</label>
+                        </li>
+                        <li>
+                            <input type="radio" name="q1" value="c" id="q1c">
+                            <label for="q1c">Спеціальна програма для роботи з файлами</label>
+                        </li>
+                        <li>
+                            <input type="radio" name="q1" value="d" id="q1d">
+                            <label for="q1d">Інтернет-сайт для спілкування</label>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Question 2 -->
+            <div class="question-container" data-question="2">
+                <div class="question">
+                    <h3>Які пристрої можуть утворювати персональний цифровий простір?</h3>
+                    <ul class="options">
+                        <li>
+                            <input type="radio" name="q2" value="a" id="q2a">
+                            <label for="q2a">Тільки комп'ютери</label>
+                        </li>
+                        <li>
+                            <input type="radio" name="q2" value="b" id="q2b">
+                            <label for="q2b">Комп'ютери, смартфони та планшети</label>
+                        </li>
+                        <li>
+                            <input type="radio" name="q2" value="c" id="q2c">
+                            <label for="q2c">Тільки смартфони</label>
+                        </li>
+                        <li>
+                            <input type="radio" name="q2" value="d" id="q2d">
+                            <label for="q2d">Тільки планшети</label>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Question 3 -->
+            <div class="question-container" data-question="3">
+                <div class="question">
+                    <h3>Що таке інформаційні потреби?</h3>
+                    <ul class="options">
+                        <li>
+                            <input type="radio" name="q3" value="a" id="q3a">
+                            <label for="q3a">Те, що ми хочемо знати або дізнатися, коли шукаємо інформацію</label>
+                        </li>
+                        <li>
+                            <input type="radio" name="q3" value="b" id="q3b">
+                            <label for="q3b">Потреба в комп'ютері</label>
+                        </li>
+                        <li>
+                            <input type="radio" name="q3" value="c" id="q3c">
+                            <label for="q3c">Потреба в інтернеті</label>
+                        </li>
+                        <li>
+                            <input type="radio" name="q3" value="d" id="q3d">
+                            <label for="q3d">Потреба у книгах</label>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Question 4 -->
+            <div class="question-container" data-question="4">
+                <div class="question">
+                    <h3>Які з перелічених є інформаційними джерелами?</h3>
+                    <ul class="options">
+                        <li>
+                            <input type="radio" name="q4" value="a" id="q4a">
+                            <label for="q4a">Тільки інтернет</label>
+                        </li>
+                        <li>
+                            <input type="radio" name="q4" value="b" id="q4b">
+                            <label for="q4b">Тільки книги</label>
+                        </li>
+                        <li>
+                            <input type="radio" name="q4" value="c" id="q4c">
+                            <label for="q4c">Інтернет, бібліотеки, вчителі, медіа</label>
+                        </li>
+                        <li>
+                            <input type="radio" name="q4" value="d" id="q4d">
+                            <label for="q4d">Тільки телевізор</label>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Question 5 -->
+            <div class="question-container" data-question="5">
+                <div class="question">
+                    <h3>Що характеризує достовірну інформацію?</h3>
+                    <ul class="options">
+                        <li>
+                            <input type="radio" name="q5" value="a" id="q5a">
+                            <label for="q5a">Вона завжди безкоштовна</label>
+                        </li>
+                        <li>
+                            <input type="radio" name="q5" value="b" id="q5b">
+                            <label for="q5b">Вона підтверджена авторитетними джерелами, фактами або експертами</label>
+                        </li>
+                        <li>
+                            <input type="radio" name="q5" value="c" id="q5c">
+                            <label for="q5c">Вона завжди нова</label>
+                        </li>
+                        <li>
+                            <input type="radio" name="q5" value="d" id="q5d">
+                            <label for="q5d">Вона завжди цікава</label>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Question 6 -->
+            <div class="question-container" data-question="6">
+                <div class="question">
+                    <h3>Що означає доменне ім'я .gov?</h3>
+                    <ul class="options">
+                        <li>
+                            <input type="radio" name="q6" value="a" id="q6a">
+                            <label for="q6a">Державні установи</label>
+                        </li>
+                        <li>
+                            <input type="radio" name="q6" value="b" id="q6b">
+                            <label for="q6b">Освітні установи, університети</label>
+                        </li>
+                        <li>
+                            <input type="radio" name="q6" value="c" id="q6c">
+                            <label for="q6c">Комерційні організації</label>
+                        </li>
+                        <li>
+                            <input type="radio" name="q6" value="d" id="q6d">
+                            <label for="q6d">Неприбуткові організації</label>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Question 7 -->
+            <div class="question-container" data-question="7">
+                <div class="question">
+                    <h3>Що таке інформаційне сміття?</h3>
+                    <ul class="options">
+                        <li>
+                            <input type="radio" name="q7" value="a" id="q7a">
+                            <label for="q7a">Застарілі файли на комп'ютері</label>
+                        </li>
+                        <li>
+                            <input type="radio" name="q7" value="b" id="q7b">
+                            <label for="q7b">Неправильно збережені документи</label>
+                        </li>
+                        <li>
+                            <input type="radio" name="q7" value="c" id="q7c">
+                            <label for="q7c">Помилки в тексті</label>
+                        </li>
+                        <li>
+                            <input type="radio" name="q7" value="d" id="q7d">
+                            <label for="q7d">Надмірна, непотрібна або небажана інформація (спам)</label>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Question 8 -->
+            <div class="question-container" data-question="8">
+                <div class="question">
+                    <h3>Який спосіб НЕ допомагає зменшити інформаційне сміття?</h3>
+                    <ul class="options">
+                        <li>
+                            <input type="radio" name="q8" value="a" id="q8a">
+                            <label for="q8a">Використання спам-фільтрів</label>
+                        </li>
+                        <li>
+                            <input type="radio" name="q8" value="b" id="q8b">
+                            <label for="q8b">Поширення неперевіреної інформації</label>
+                        </li>
+                        <li>
+                            <input type="radio" name="q8" value="c" id="q8c">
+                            <label for="q8c">Видалення непотрібних підписок</label>
+                        </li>
+                        <li>
+                            <input type="radio" name="q8" value="d" id="q8d">
+                            <label for="q8d">Використання одноразових email-адрес</label>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Question 9 -->
+            <div class="question-container" data-question="9">
+                <div class="question">
+                    <h3>Для чого використовується сервіс TinEye?</h3>
+                    <ul class="options">
+                        <li>
+                            <input type="radio" name="q9" value="a" id="q9a">
+                            <label for="q9a">Зворотний пошук зображень</label>
+                        </li>
+                        <li>
+                            <input type="radio" name="q9" value="b" id="q9b">
+                            <label for="q9b">Перевірка посилань на віруси</label>
+                        </li>
+                        <li>
+                            <input type="radio" name="q9" value="c" id="q9c">
+                            <label for="q9c">Пошук інформації про людей</label>
+                        </li>
+                        <li>
+                            <input type="radio" name="q9" value="d" id="q9d">
+                            <label for="q9d">Перевірка сайтів на фішинг</label>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Question 10 -->
+            <div class="question-container" data-question="10">
+                <div class="question">
+                    <h3>Що важливо робити при пошуку інформації в інтернеті?</h3>
+                    <ul class="options">
+                        <li>
+                            <input type="radio" name="q10" value="a" id="q10a">
+                            <label for="q10a">Використовувати тільки перший знайдений результат</label>
+                        </li>
+                        <li>
+                            <input type="radio" name="q10" value="b" id="q10b">
+                            <label for="q10b">Порівнювати джерела, перевіряти дати, бути критичними</label>
+                        </li>
+                        <li>
+                            <input type="radio" name="q10" value="c" id="q10c">
+                            <label for="q10c">Довіряти всім сайтам однаково</label>
+                        </li>
+                        <li>
+                            <input type="radio" name="q10" value="d" id="q10d">
+                            <label for="q10d">Використовувати тільки соціальні мережі</label>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div class="results" id="results">
+                <h2>🎉 Результати тестування</h2>
+                <div class="score-circle" id="scoreCircle">
+                    <span id="scoreText">0/10</span>
+                </div>
+                <p id="scoreMessage"></p>
+                <button class="btn restart-btn" onclick="restartTest()">🔄 Пройти тест знову</button>
+            </div>
+
+            <div class="navigation" id="navigation">
+                <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()" disabled>
+                    ← Попереднє
+                </button>
+                <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()">
+                    Наступне →
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentQuestion = 1;
+        const totalQuestions = 10;
+        const correctAnswers = {
+            q1: 'b', q2: 'b', q3: 'a', q4: 'c', q5: 'b',
+            q6: 'a', q7: 'd', q8: 'b', q9: 'a', q10: 'b'
+        };
+
+        function updateProgress() {
+            const progress = (currentQuestion / totalQuestions) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('questionCounter').textContent = `Питання ${currentQuestion} з ${totalQuestions}`;
+        }
+
+        function showQuestion(questionNum) {
+            document.querySelectorAll('.question-container').forEach(q => q.classList.remove('active'));
+            document.querySelector(`[data-question="${questionNum}"]`).classList.add('active');
+            
+            document.getElementById('prevBtn').disabled = questionNum === 1;
+            
+            if (questionNum === totalQuestions) {
+                const nextBtn = document.getElementById('nextBtn');
+                nextBtn.textContent = '✅ Завершити тест';
+                nextBtn.onclick = finishTest;
+            } else {
+                const nextBtn = document.getElementById('nextBtn');
+                nextBtn.textContent = 'Наступне →';
+                nextBtn.onclick = nextQuestion;
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < totalQuestions) {
+                currentQuestion++;
+                showQuestion(currentQuestion);
+                updateProgress();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 1) {
+                currentQuestion--;
+                showQuestion(currentQuestion);
+                updateProgress();
+            }
+        }
+
+        function finishTest() {
+            let score = 0;
+            
+            for (let i = 1; i <= totalQuestions; i++) {
+                const selectedAnswer = document.querySelector(`input[name="q${i}"]:checked`);
+                if (selectedAnswer && selectedAnswer.value === correctAnswers[`q${i}`]) {
+                    score++;
+                }
+            }
+
+            showResults(score);
+        }
+
+        function showResults(score) {
+            document.querySelectorAll('.question-container').forEach(q => q.classList.remove('active'));
+            document.getElementById('navigation').style.display = 'none';
+            document.getElementById('results').classList.add('active');
+            
+            const scoreCircle = document.getElementById('scoreCircle');
+            const scoreText = document.getElementById('scoreText');
+            const scoreMessage = document.getElementById('scoreMessage');
+            
+            scoreText.textContent = `${score}/${totalQuestions}`;
+            
+            const percentage = (score / totalQuestions) * 100;
+            
+            if (percentage >= 90) {
+                scoreCircle.className = 'score-circle score-excellent';
+                scoreMessage.innerHTML = '<strong>🌟 Відмінно!</strong><br>Ви чудово засвоїли матеріал про персональний цифровий простір!';
+            } else if (percentage >= 70) {
+                scoreCircle.className = 'score-circle score-good';
+                scoreMessage.innerHTML = '<strong>👍 Добре!</strong><br>Ви маєте гарні знання, але є простір для вдосконалення.';
+            } else if (percentage >= 50) {
+                scoreCircle.className = 'score-circle score-fair';
+                scoreMessage.innerHTML = '<strong>📚 Задовільно</strong><br>Рекомендуємо ще раз переглянути матеріал.';
+            } else {
+                scoreCircle.className = 'score-circle score-poor';
+                scoreMessage.innerHTML = '<strong>📖 Потрібно краще вивчити</strong><br>Поверніться до підручника та повторіть матеріал.';
+            }
+        }
+
+        function restartTest() {
+            currentQuestion = 1;
+            
+            // Clear all selections
+            document.querySelectorAll('input[type="radio"]').forEach(input => {
+                input.checked = false;
+            });
+            
+            // Reset interface
+            document.getElementById('results').classList.remove('active');
+            document.getElementById('navigation').style.display = 'flex';
+            showQuestion(1);
+            updateProgress();
+        }
+
+        function toggleFullscreen() {
+            const container = document.getElementById('testContainer');
+            const btn = document.getElementById('fullscreenBtn');
+            
+            if (container.classList.contains('fullscreen')) {
+                container.classList.remove('fullscreen');
+                btn.textContent = '📱 На весь екран';
+                document.body.style.overflow = 'auto';
+            } else {
+                container.classList.add('fullscreen');
+                btn.textContent = '📱 Звичайний режим';
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        // Handle escape key for fullscreen
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const container = document.getElementById('testContainer');
+                if (container.classList.contains('fullscreen')) {
+                    toggleFullscreen();
+                }
+            }
+        });
+
+        // Initialize
+        updateProgress();
+    </script>
+</body>
+</html>

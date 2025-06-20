@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Персональний цифровий простір - Інтерактивна вправа</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #0f0f23;
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .title {
+            font-size: 2.5em;
+            font-weight: bold;
+            background: linear-gradient(45deg, #00f5ff, #ff00ff, #00ff00);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 3s ease-in-out infinite;
+            text-shadow: 0 0 30px rgba(0, 245, 255, 0.5);
+            margin-bottom: 10px;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .fullscreen-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(45deg, #00f5ff, #ff00ff);
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .fullscreen-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(0, 245, 255, 0.6);
+        }
+
+        .exercise-container {
+            background: rgba(26, 26, 46, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 2px solid #00f5ff;
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+
+        .exercise-container::before {
+            display: none;
+        }
+
+        @keyframes borderGlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .exercise-title {
+            font-size: 1.8em;
+            color: #00f5ff;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(0, 245, 255, 0.5);
+        }
+
+        .drag-drop-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 20px 0;
+        }
+
+        .drag-items {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .drag-item {
+            background: linear-gradient(45deg, #ff00ff, #00f5ff);
+            padding: 15px;
+            border-radius: 15px;
+            cursor: grab;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.3);
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .drag-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(255, 0, 255, 0.5);
+        }
+
+        .drag-item.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+
+        .drop-zones {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .drop-zone {
+            border: 3px dashed #00ff00;
+            border-radius: 15px;
+            padding: 20px;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 255, 0, 0.1);
+            font-size: 18px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .drop-zone.drag-over {
+            background: rgba(0, 255, 0, 0.3);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+            transform: scale(1.02);
+        }
+
+        .drop-zone.filled {
+            background: rgba(0, 255, 0, 0.2);
+            border-color: #00f5ff;
+            box-shadow: 0 0 15px rgba(0, 245, 255, 0.3);
+        }
+
+        .matching-exercise {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 20px 0;
+        }
+
+        .match-column {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .match-item {
+            background: linear-gradient(45deg, #16213e, #0a0a0a);
+            border: 2px solid #00f5ff;
+            padding: 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 18px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .match-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.4);
+        }
+
+        .match-item.selected {
+            background: linear-gradient(45deg, #00f5ff, #ff00ff);
+            box-shadow: 0 0 25px rgba(0, 245, 255, 0.6);
+            transform: scale(1.05);
+        }
+
+        .match-item.correct {
+            background: linear-gradient(45deg, #00ff00, #00f5ff);
+            animation: correctPulse 0.6s ease-in-out;
+        }
+
+        .match-item.incorrect {
+            background: linear-gradient(45deg, #ff0066, #ff3366);
+            animation: incorrectShake 0.6s ease-in-out;
+        }
+
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes incorrectShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .sequence-exercise {
+            margin: 20px 0;
+        }
+
+        .sequence-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .sequence-item {
+            background: linear-gradient(45deg, #ff00ff, #ffff00);
+            padding: 15px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            user-select: none;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .sequence-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
+        }
+
+        .sequence-item.selected {
+            background: linear-gradient(45deg, #00ff00, #00f5ff);
+            order: -1;
+        }
+
+        .sequence-result {
+            background: rgba(26, 26, 46, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 2px solid #00f5ff;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .check-btn {
+            background: linear-gradient(45deg, #00ff00, #00f5ff);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 20px;
+            font-weight: bold;
+            margin: 20px auto;
+            display: block;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .check-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.5);
+        }
+
+        .result {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 15px;
+            display: none;
+        }
+
+        .result.success {
+            background: linear-gradient(45deg, #00ff00, #00f5ff);
+            box-shadow: 0 0 25px rgba(0, 255, 0, 0.5);
+        }
+
+        .result.error {
+            background: linear-gradient(45deg, #ff0066, #ff3366);
+            box-shadow: 0 0 25px rgba(255, 0, 102, 0.5);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #00ff00, #00f5ff);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .title {
+                font-size: 1.8em;
+            }
+            
+            .drag-drop-area,
+            .matching-exercise {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .sequence-items {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .sequence-item {
+                min-width: 250px;
+            }
+            
+            .fullscreen-btn {
+                position: fixed;
+                top: 10px;
+                right: 10px;
+                z-index: 1000;
+            }
+        }
+
+        .fullscreen {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            max-width: none !important;
+            z-index: 9999 !important;
+            background: #0f0f23 !important;
+            overflow-y: auto !important;
+        }
+
+        .instruction {
+            background: rgba(0, 245, 255, 0.15);
+            border: 2px solid #00f5ff;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            font-size: 20px;
+            line-height: 1.7;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="mainContainer">
+        <button class="fullscreen-btn" onclick="toggleFullscreen()">⛶ Повний екран</button>
+        
+        <div class="header">
+            <h1 class="title">Персональний цифровий простір</h1>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <!-- Вправа 1: Перетягування -->
+        <div class="exercise-container" id="exercise1">
+            <h2 class="exercise-title">Вправа 1: Що можна робити в персональному цифровому просторі?</h2>
+            <div class="instruction">
+                Перетягніть дії до відповідних категорій використання персонального цифрового простору:
+            </div>
+            <div class="drag-drop-area">
+                <div class="drag-items">
+                    <div class="drag-item" draggable="true" data-category="storage">Зберігати фотографії</div>
+                    <div class="drag-item" draggable="true" data-category="work">Редагувати документи</div>
+                    <div class="drag-item" draggable="true" data-category="learning">Шукати інформацію</div>
+                    <div class="drag-item" draggable="true" data-category="sharing">Надсилати файли</div>
+                    <div class="drag-item" draggable="true" data-category="storage">Зберігати відео</div>
+                    <div class="drag-item" draggable="true" data-category="work">Створювати презентації</div>
+                </div>
+                <div class="drop-zones">
+                    <div class="drop-zone" data-category="storage">
+                        <span>Зберігання інформації</span>
+                    </div>
+                    <div class="drop-zone" data-category="work">
+                        <span>Робота з інформацією</span>
+                    </div>
+                    <div class="drop-zone" data-category="learning">
+                        <span>Навчання</span>
+                    </div>
+                    <div class="drop-zone" data-category="sharing">
+                        <span>Поширення інформації</span>
+                    </div>
+                </div>
+            </div>
+            <button class="check-btn" onclick="checkDragDrop()">Перевірити</button>
+            <div class="result" id="result1"></div>
+        </div>
+
+        <!-- Вправа 2: Співставлення -->
+        <div class="exercise-container" id="exercise2">
+            <h2 class="exercise-title">Вправа 2: Інформаційні джерела</h2>
+            <div class="instruction">
+                Співставте джерела інформації з їх описами. Клікніть на елементи, щоб їх з'єднати:
+            </div>
+            <div class="matching-exercise">
+                <div class="match-column">
+                    <div class="match-item" data-match="internet">Інтернет</div>
+                    <div class="match-item" data-match="library">Бібліотеки</div>
+                    <div class="match-item" data-match="teacher">Вчителі та експерти</div>
+                    <div class="match-item" data-match="media">Медіа</div>
+                </div>
+                <div class="match-column">
+                    <div class="match-item" data-match="media">Телевізор, радіо, газети</div>
+                    <div class="match-item" data-match="internet">Велике джерело інформації в мережі</div>
+                    <div class="match-item" data-match="teacher">Джерела знань та експертизи</div>
+                    <div class="match-item" data-match="library">Книги, журнали для дослідження</div>
+                </div>
+            </div>
+            <button class="check-btn" onclick="checkMatching()">Перевірити</button>
+            <div class="result" id="result2"></div>
+        </div>
+
+        <!-- Вправа 3: Послідовність -->
+        <div class="exercise-container" id="exercise3">
+            <h2 class="exercise-title">Вправа 3: Кроки ефективного пошуку в Інтернеті</h2>
+            <div class="instruction">
+                Розставте кроки пошуку інформації в правильній послідовності. Клікайте на елементи по порядку:
+            </div>
+            <div class="sequence-items">
+                <div class="sequence-item" data-order="1">Визначити ключові слова</div>
+                <div class="sequence-item" data-order="4">Порівняти джерела</div>
+                <div class="sequence-item" data-order="2">Перевірити джерело</div>
+                <div class="sequence-item" data-order="5">Бути критичним до інформації</div>
+                <div class="sequence-item" data-order="3">Перевірити дату публікації</div>
+            </div>
+            <div class="sequence-result" id="sequenceResult">
+                <strong>Обрана послідовність:</strong>
+                <div id="selectedSequence"></div>
+            </div>
+            <button class="check-btn" onclick="checkSequence()">Перевірити послідовність</button>
+            <div class="result" id="result3"></div>
+        </div>
+    </div>
+
+    <script>
+        // Глобальні змінні
+        let draggedItem = null;
+        let selectedMatch = null;
+        let sequenceOrder = [];
+        let completedExercises = 0;
+
+        // Drag and Drop функціональність
+        function initDragDrop() {
+            const dragItems = document.querySelectorAll('.drag-item');
+            const dropZones = document.querySelectorAll('.drop-zone');
+
+            dragItems.forEach(item => {
+                item.addEventListener('dragstart', (e) => {
+                    draggedItem = e.target;
+                    e.target.classList.add('dragging');
+                });
+
+                item.addEventListener('dragend', (e) => {
+                    e.target.classList.remove('dragging');
+                });
+            });
+
+            dropZones.forEach(zone => {
+                zone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    zone.classList.add('drag-over');
+                });
+
+                zone.addEventListener('dragleave', () => {
+                    zone.classList.remove('drag-over');
+                });
+
+                zone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    zone.classList.remove('drag-over');
+                    
+                    if (draggedItem && zone.dataset.category === draggedItem.dataset.category) {
+                        const existingItem = zone.querySelector('.drag-item');
+                        if (existingItem) {
+                            existingItem.remove();
+                        }
+                        zone.appendChild(draggedItem);
+                        zone.classList.add('filled');
+                        draggedItem = null;
+                    }
+                });
+            });
+        }
+
+        function checkDragDrop() {
+            const dropZones = document.querySelectorAll('.drop-zone');
+            let correct = 0;
+            let total = dropZones.length;
+
+            dropZones.forEach(zone => {
+                const item = zone.querySelector('.drag-item');
+                if (item && zone.dataset.category === item.dataset.category) {
+                    correct++;
+                }
+            });
+
+            const result = document.getElementById('result1');
+            if (correct === total) {
+                result.className = 'result success';
+                result.textContent = '🎉 Відмінно! Всі відповіді правильні!';
+                updateProgress(1);
+            } else {
+                result.className = 'result error';
+                result.textContent = `❌ Правильних відповідей: ${correct} з ${total}. Спробуйте ще раз!`;
+            }
+            result.style.display = 'block';
+        }
+
+        // Matching функціональність
+        function initMatching() {
+            const matchItems = document.querySelectorAll('.match-item');
+            
+            matchItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    if (selectedMatch === null) {
+                        selectedMatch = item;
+                        item.classList.add('selected');
+                    } else if (selectedMatch === item) {
+                        selectedMatch.classList.remove('selected');
+                        selectedMatch = null;
+                    } else {
+                        const isCorrect = selectedMatch.dataset.match === item.dataset.match;
+                        
+                        if (isCorrect) {
+                            selectedMatch.classList.remove('selected');
+                            selectedMatch.classList.add('correct');
+                            item.classList.add('correct');
+                        } else {
+                            selectedMatch.classList.add('incorrect');
+                            item.classList.add('incorrect');
+                            
+                            setTimeout(() => {
+                                selectedMatch.classList.remove('incorrect', 'selected');
+                                item.classList.remove('incorrect');
+                            }, 600);
+                        }
+                        selectedMatch = null;
+                    }
+                });
+            });
+        }
+
+        function checkMatching() {
+            const correctItems = document.querySelectorAll('.match-item.correct');
+            const result = document.getElementById('result2');
+            
+            if (correctItems.length === 8) {
+                result.className = 'result success';
+                result.textContent = '🎉 Чудово! Всі співставлення правильні!';
+                updateProgress(2);
+            } else {
+                result.className = 'result error';
+                result.textContent = `❌ Правильних співставлень: ${correctItems.length / 2} з 4. Продовжуйте!`;
+            }
+            result.style.display = 'block';
+        }
+
+        // Sequence функціональність
+        function initSequence() {
+            const sequenceItems = document.querySelectorAll('.sequence-item');
+            
+            sequenceItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    if (!item.classList.contains('selected')) {
+                        item.classList.add('selected');
+                        sequenceOrder.push({
+                            order: parseInt(item.dataset.order),
+                            text: item.textContent
+                        });
+                        updateSequenceDisplay();
+                    }
+                });
+            });
+        }
+
+        function updateSequenceDisplay() {
+            const display = document.getElementById('selectedSequence');
+            display.innerHTML = sequenceOrder.map((item, index) => 
+                `${index + 1}. ${item.text}`
+            ).join('<br>');
+        }
+
+        function checkSequence() {
+            const result = document.getElementById('result3');
+            const isCorrect = sequenceOrder.every((item, index) => item.order === index + 1);
+            
+            if (isCorrect && sequenceOrder.length === 5) {
+                result.className = 'result success';
+                result.textContent = '🎉 Ідеально! Послідовність правильна!';
+                updateProgress(3);
+            } else {
+                result.className = 'result error';
+                result.textContent = '❌ Послідовність неправильна. Спробуйте ще раз!';
+                // Скинути вибір
+                document.querySelectorAll('.sequence-item').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                sequenceOrder = [];
+                updateSequenceDisplay();
+            }
+            result.style.display = 'block';
+        }
+
+        function updateProgress(exerciseNumber) {
+            if (exerciseNumber === 1 && !document.getElementById('exercise1').classList.contains('completed')) {
+                completedExercises++;
+                document.getElementById('exercise1').classList.add('completed');
+            } else if (exerciseNumber === 2 && !document.getElementById('exercise2').classList.contains('completed')) {
+                completedExercises++;
+                document.getElementById('exercise2').classList.add('completed');
+            } else if (exerciseNumber === 3 && !document.getElementById('exercise3').classList.contains('completed')) {
+                completedExercises++;
+                document.getElementById('exercise3').classList.add('completed');
+            }
+            
+            const progressFill = document.getElementById('progressFill');
+            const percentage = (completedExercises / 3) * 100;
+            progressFill.style.width = percentage + '%';
+        }
+
+        function toggleFullscreen() {
+            const container = document.getElementById('mainContainer');
+            
+            if (!container.classList.contains('fullscreen')) {
+                container.classList.add('fullscreen');
+                document.querySelector('.fullscreen-btn').textContent = '⛶ Вийти';
+            } else {
+                container.classList.remove('fullscreen');
+                document.querySelector('.fullscreen-btn').textContent = '⛶ Повний екран';
+            }
+        }
+
+        // Ініціалізація при завантаженні сторінки
+        document.addEventListener('DOMContentLoaded', () => {
+            initDragDrop();
+            initMatching();
+            initSequence();
+        });
+
+        // Клавіатурні скорочення
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'F11') {
+                e.preventDefault();
+                toggleFullscreen();
+            }
+        });
+    </script>
+</body>
+</html>
